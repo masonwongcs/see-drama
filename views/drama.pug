@@ -1,0 +1,10 @@
+html
+    head
+        include components/meta
+    body
+        .drama-list-wrapper.flex
+            .drama-title= title
+            .drama-list
+                for item in content
+                    a.drama-item(href="/episode?" + item.url, style="background-image: url(" + item.image + ")")
+                        h3.title= item.title

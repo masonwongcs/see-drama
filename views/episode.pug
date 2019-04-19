@@ -1,0 +1,11 @@
+html
+    head
+        title Drama
+    body
+        h3 Episode
+        ul
+            for item in content
+                li
+                    a(href="/video?" + item.url)
+                        h3= item.title
+                        div= item.image

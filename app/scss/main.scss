@@ -1,0 +1,203 @@
+@import "normalize";
+@import "mixins";
+
+body {
+  background: #000;
+  margin: 0;
+  font-family: "Kanit", sans-serif;
+}
+
+.videoLoader {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  outline: none;
+  border: 0;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.9);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.drama-list-wrapper {
+  width: 100%;
+  overflow-x: hidden;
+  &.flex {
+    height: auto;
+    padding: 0.5rem 4% 0.5em 4%;
+    box-sizing: border-box;
+    .drama-list {
+      height: auto;
+      display: flex;
+      flex-flow: row wrap;
+      .drama-item {
+        margin: 0 auto 20px;
+      }
+    }
+  }
+  .drama-title {
+    color: #fff;
+    margin: 0 4% 0.5em 4%;
+    font-size: 1.5rem;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    .see-more {
+      margin-left: auto;
+      font-size: 0.8rem;
+      text-decoration: none;
+      color: #fff;
+    }
+  }
+  .drama-list {
+    height: 200px;
+    margin-top: 20px;
+    margin-bottom: 40px;
+    &:hover {
+      .flickity-button {
+        opacity: 1;
+      }
+    }
+    .flickity-viewport {
+      overflow: visible;
+    }
+    .flickity-button {
+      opacity: 0;
+      transition: all 200ms ease-in-out;
+      &.flickity-prev-next-button {
+        width: 44px;
+        height: 220px;
+        border-radius: 0;
+        background-color: rgba(0, 0, 0, 0.4);
+        svg {
+          fill: #fff;
+        }
+        &.previous {
+          left: 0;
+          background: linear-gradient(to left, transparent, rgba(0, 0, 0, 0.9));
+        }
+        &.next {
+          right: 0;
+          background: linear-gradient(
+            to right,
+            transparent,
+            rgba(0, 0, 0, 0.9)
+          );
+        }
+      }
+    }
+    &.active {
+      .drama-item {
+        &.active {
+          box-shadow: 0 0 0 4px #fff;
+          //&:before {
+          //  content: "";
+          //  width: 0;
+          //  height: 0;
+          //  position: absolute;
+          //  top: 100%;
+          //  left: 50%;
+          //  margin-left: -13px;
+          //  border-style: solid;
+          //  border-width: 7px 13px 0 13px;
+          //  border-color: rgba(0, 0, 0, 0.15) transparent transparent
+          //    transparent;
+          //  margin-top: 5px;
+          //}
+          &:after {
+            content: "";
+            width: 0;
+            height: 0;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -13px;
+            border-style: solid;
+            border-width: 7px 13px 0 13px;
+            margin-top: 4px;
+            border-color: #fff transparent transparent transparent;
+          }
+        }
+      }
+    }
+    .drama-item {
+      display: block;
+      width: 145px;
+      height: 200px;
+      position: relative;
+      //overflow: hidden;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      margin-right: 4px;
+      transition: transform 200ms ease-in-out;
+      &:before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 50%;
+        background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.9));
+        opacity: 0;
+        transition: opacity 300ms ease-in-out;
+      }
+      &:hover {
+        transform: scale(1.1);
+        z-index: 10;
+        &:before {
+          opacity: 1;
+        }
+        .title {
+          opacity: 1;
+        }
+      }
+      .title {
+        position: absolute;
+        text-decoration: none;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: normal;
+        bottom: 4px;
+        left: 4px;
+        right: 4px;
+        opacity: 0;
+        transition: opacity 300ms ease-in-out;
+        text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        z-index: 10;
+      }
+    }
+  }
+  .episode-wrapper {
+    //min-height: 400px;
+    display: none;
+    .episode-list {
+      display: flex;
+      flex-flow: row wrap;
+      box-sizing: border-box;
+      padding: 0.5rem 4%;
+      background: #111;
+      .episode-item {
+        width: 50px;
+        height: 50px;
+        border: 1px solid #fff;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.2);
+        }
+      }
+    }
+  }
+}

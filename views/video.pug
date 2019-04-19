@@ -1,0 +1,69 @@
+html
+    head
+        include components/meta
+        script(src="https://cdn.plyr.io/3.5.3/plyr.js")
+        link(rel="stylesheet" href="https://cdn.plyr.io/3.5.3/plyr.css" )
+        style.
+            html, body {
+                margin: 0;
+                background: transparent;
+            }
+            video {
+                /*width: 100%;*/
+                /*height: 100%;*/
+            }
+
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .plyr--video{
+                width: 90%;
+            }
+
+            .close {
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                width: 4rem;
+                font-size: 4rem;
+                color: #fff;
+                height: 4rem;
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+    body
+        a.close(href="#!") ×
+        video#player(poster='/path/to/poster.jpg', playsinline='', controls='')
+            source(src="", type='video/mp4')
+            //source(src='/path/to/video.webm', type='video/webm')
+            // Captions are optional
+            track(kind='captions', label='English captions', src='/path/to/captions.vtt', srclang='en', default='')
+        script.
+            const video = !{content}
+            console.log(video)
+            const player = new Plyr('#player');
+            player.source = {
+                type: 'video',
+                title: 'Example title',
+                sources: [
+                    {
+                        src: video[0].url,
+                        type: 'video/mp4',
+                        size: 360,
+                    },
+                    {
+                        src: video[1].url,
+                        type: 'video/mp4',
+                        size: 720,
+                    }
+                ],
+            }
+
+            $(".close").click(function(e){
+                e.preventDefault();
+                window.top.postMessage('close', '*');
+            })
