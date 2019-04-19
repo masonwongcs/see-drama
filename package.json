@@ -1,10 +1,10 @@
 {
-  "name": "express-gulp-boilerplate",
+  "name": "see-drama",
   "version": "1.0.0",
-  "description": "Express boilerplate with Gulp, nodemon and BrowserSync",
+  "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "gulp && node app.js",
     "serve": "gulp"
   },
   "author": "Jesper Orb",
