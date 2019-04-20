@@ -113,6 +113,40 @@ getVideo = async (query, setHeader) => {
       let dramaContent = {
         title: value.title,
         image: value.content,
+        url: value.title.includes("Mirror")
+          ? btoa(enclosure.url) + "a"
+          : enclosure.url
+      };
+      episodeList.push(dramaContent);
+    });
+  }
+  return episodeList;
+};
+
+getVideoLanguage = async (query, setHeader) => {
+  let episodeList = [];
+
+  let res = await axios.get(
+    query,
+    setHeader
+      ? {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57 RSSPlayer/2.9",
+            IPADDRESS: "101.127.59.140"
+          }
+        }
+      : {}
+  );
+
+  if (res.status === 200) {
+    let feed = await parser.parseString(res.data);
+
+    feed.items.map((value, index) => {
+      let enclosure = value.enclosure;
+      let dramaContent = {
+        title: value.title,
+        image: value.content,
         url: enclosure.url
       };
       episodeList.push(dramaContent);
@@ -159,22 +193,32 @@ app.get("/api/episode", async (req, res) => {
 
 app.get("/video", async (req, res) => {
   const query = req._parsedUrl.query;
-  // await getVideo(atob(query.slice(0, -1)), true).then(response => {
-  //   res.render("video", { content: JSON.stringify(response) });
-  // });
-
-  let response = await getVideo(atob(query.slice(0, -1)), true);
-
-  console.log(response)
-  response.forEach(async (value, index) => {
-    console.log(value);
-    if (value.title.includes("Mirror Allupload (Cantonese)")) {
-      await getVideo(value.url, false).then(response => {
-        res.render("video", { content: JSON.stringify(response) });
-      });
+  await getVideo(atob(query.slice(0, -1)), true).then(response => {
+    console.log(response[0].title);
+    if (response[0].title.includes("Mirror")) {
+      res.render("video", { channel: true, content: response });
     } else {
-      return;
+      res.render("video", {
+        channel: false,
+        content: JSON.stringify(response)
+      });
     }
   });
+
+  // await getVideo(atob(query.slice(0, -1)), true).then(response => {
+  //   console.log(response);
+  //   response.forEach(async (value, index) => {
+  //     if (value.title.includes("Mirror Allupload (Cantonese)")) {
+  //       res.render("video", { channel: true, content: JSON.stringify(response) });
+  //       // await getVideoLanguage(value.url, true).then(response => {
+  //       //   console.log(value.url)
+  //       //   res.render("video", { content: JSON.stringify(response) });
+  //       // });
+  //       // return;
+  //     } else {
+  //       res.render("video", { channel: false, content: JSON.stringify(response) });
+  //     }
+  //   });
+  // });
 });
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

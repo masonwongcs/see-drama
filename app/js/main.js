@@ -105,7 +105,8 @@ $(document).ready(function() {
             value.url
           }" class="episode-item" data-video="/video?${value.url}"></a>`
         );
-        episodeItem.text(index + 1);
+        // episodeItem.text(index + 1);
+        episodeItem.text(value.title);
         episodeList.append(episodeItem);
       });
       $(this).addClass("active");

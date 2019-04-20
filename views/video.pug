@@ -35,35 +35,66 @@ html
                 align-items: center;
                 justify-content: center;
             }
-    body
-        a.close(href="#!") ×
-        video#player(poster='/path/to/poster.jpg', playsinline='', controls='')
-            source(src="", type='video/mp4')
-            //source(src='/path/to/video.webm', type='video/webm')
-            // Captions are optional
-            track(kind='captions', label='English captions', src='/path/to/captions.vtt', srclang='en', default='')
-        script.
-            const video = !{content}
-            console.log(video)
-            const player = new Plyr('#player');
-            player.source = {
-                type: 'video',
-                title: 'Example title',
-                sources: [
-                    {
-                        src: video[0].url,
-                        type: 'video/mp4',
-                        size: 360,
-                    },
-                    {
-                        src: video[1].url,
-                        type: 'video/mp4',
-                        size: 720,
-                    }
-                ],
+
+            .channel-list-wrapper {
+                /*display: flex;*/
+                /*align-items: center;*/
+                /*justify-content: center;*/
             }
 
-            $(".close").click(function(e){
+            .channel-item {
+                display: flex;
+                height: 40px;
+                border: 1px solid #fff;
+                flex-grow: 1;
+                margin: auto;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                font-size: 1rem;
+                padding: 0 20px;
+                text-decoration: none;
+            }
+
+            .channel-item:not(:last-child) {
+                margin-bottom: 8px;
+            }
+    body
+        a.close(href="#!") ×
+        script.
+            $(".close").click(function (e) {
                 e.preventDefault();
                 window.top.postMessage('close', '*');
             })
+        if channel
+            .channel-list-wrapper
+                for items in content
+                    a.channel-item(href="/video?" + items.url )= items.title
+
+        else
+            video#player(poster='/path/to/poster.jpg', playsinline='', controls='', autoplay)
+                source(src="", type='video/mp4')
+                //source(src='/path/to/video.webm', type='video/webm')
+                // Captions are optional
+                track(kind='captions', label='English captions', src='/path/to/captions.vtt', srclang='en', default='')
+            script.
+                const video = !{content}
+                console.log(video)
+                const player = new Plyr('#player');
+                player.source = {
+                    type: 'video',
+                    title: 'Example title',
+                    sources: [
+                        {
+                            src: video[0].url,
+                            type: 'video/mp4',
+                            size: 360,
+                        },
+                        {
+                            src: video[1].url,
+                            type: 'video/mp4',
+                            size: 720,
+                        }
+                    ],
+                }
+

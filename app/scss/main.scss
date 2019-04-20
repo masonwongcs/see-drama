@@ -183,14 +183,17 @@ body {
       padding: 0.5rem 4%;
       background: #111;
       .episode-item {
-        width: 50px;
+        flex-grow: 1;
+        min-width: 50px;
+        padding: 0 8px;
+        box-sizing: border-box;
         height: 50px;
         border: 1px solid #fff;
         margin-right: 8px;
         margin-bottom: 8px;
         color: #fff;
         text-decoration: none;
-        font-size: 1.3rem;
+        font-size: 1rem;
         display: flex;
         align-items: center;
         justify-content: center;
