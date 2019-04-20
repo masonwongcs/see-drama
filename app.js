@@ -122,10 +122,6 @@ getVideo = async (query, setHeader) => {
 };
 
 app.get("/", async (req, res) => {
-  res.send("Hello")
-});
-
-app.get("/drama", async (req, res) => {
   const dramaList = await getDramaList();
   // res.send(dramaList)
   res.render("index", { content: dramaList });
