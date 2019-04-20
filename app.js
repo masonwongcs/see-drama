@@ -10,7 +10,7 @@ const atob = require("atob");
 const path = require("path");
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const dramaUrl = "http://allrss.se" + "/dramas";
 const regex = /<img.*?src='(.*?)'/;
 
@@ -89,16 +89,21 @@ getEpisode = async query => {
   return contentList;
 };
 
-getVideo = async query => {
+getVideo = async (query, setHeader) => {
   let episodeList = [];
 
-  let res = await axios.get(query, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57 RSSPlayer/2.9",
-      IPADDRESS: "101.127.59.140"
-    }
-  });
+  let res = await axios.get(
+    query,
+    setHeader
+      ? {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16D57 RSSPlayer/2.9",
+            IPADDRESS: "101.127.59.140"
+          }
+        }
+      : {}
+  );
 
   if (res.status === 200) {
     let feed = await parser.parseString(res.data);
@@ -117,6 +122,10 @@ getVideo = async query => {
 };
 
 app.get("/", async (req, res) => {
+  res.send("Hello")
+});
+
+app.get("/drama", async (req, res) => {
   const dramaList = await getDramaList();
   // res.send(dramaList)
   res.render("index", { content: dramaList });
@@ -130,7 +139,7 @@ app.get("/api/list", async (req, res) => {
 
 app.get("/drama", async (req, res) => {
   const title = req.query.channel;
-  console.log(title)
+  console.log(title);
   const contentList = await getContent(req._parsedUrl.search);
   res.render("drama", { title: title, content: contentList });
 });
@@ -154,8 +163,22 @@ app.get("/api/episode", async (req, res) => {
 
 app.get("/video", async (req, res) => {
   const query = req._parsedUrl.query;
-  await getVideo(atob(query.slice(0, -1))).then(response => {
-    res.render("video", { content: JSON.stringify(response) });
+  // await getVideo(atob(query.slice(0, -1)), true).then(response => {
+  //   res.render("video", { content: JSON.stringify(response) });
+  // });
+
+  let response = await getVideo(atob(query.slice(0, -1)), true);
+
+  console.log(response)
+  response.forEach(async (value, index) => {
+    console.log(value);
+    if (value.title.includes("Mirror Allupload (Cantonese)")) {
+      await getVideo(value.url, false).then(response => {
+        res.render("video", { content: JSON.stringify(response) });
+      });
+    } else {
+      return;
+    }
   });
 });
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

@@ -4,8 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "gulp && node app.js",
-    "serve": "gulp"
+    "start": "node app.js",
+    "dev": "gulp"
   },
   "author": "Jesper Orb",
   "license": "ISC",
