@@ -88,6 +88,10 @@ header {
   align-items: center;
   &.visible {
     background-color: rgb(20, 20, 20);
+    @media screen and (max-width: 480px) {
+      background-color: rgba(20, 20, 20, 0.7);
+      backdrop-filter: blur(10px);
+    }
   }
   .logo {
     width: 120px;

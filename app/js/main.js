@@ -70,7 +70,7 @@ loadDramaSeries = async () => {
           let carousel = $(".drama-list").flickity({
             // options
             contain: true,
-            freeScroll: true,
+            // freeScroll: true,
             wrapAround: true,
             pageDots: false
           });
