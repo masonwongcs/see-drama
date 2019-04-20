@@ -24,8 +24,8 @@ html
 
             .close {
                 position: fixed;
-                top: 10px;
-                left: 10px;
+                top: 0;
+                left: 0;
                 width: 4rem;
                 font-size: 4rem;
                 color: #fff;
@@ -72,7 +72,7 @@ html
                     a.channel-item(href="/video?" + items.url )= items.title
 
         else
-            video#player(poster='/path/to/poster.jpg', playsinline='', controls='', autoplay)
+            video#player(poster='/path/to/poster.jpg', controls='', autoplay)
                 source(src="", type='video/mp4')
                 //source(src='/path/to/video.webm', type='video/webm')
                 // Captions are optional

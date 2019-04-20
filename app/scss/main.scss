@@ -2,9 +2,97 @@
 @import "mixins";
 
 body {
-  background: #000;
+  background-color: #000;
   margin: 0;
   font-family: "Kanit", sans-serif;
+  .bg-image {
+    position: fixed;
+    top: 0;
+    z-index: -1;
+    width: 100vw;
+    height: 50%;
+    filter: blur(15px);
+    opacity: 0.5;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    &:before {
+      content: "";
+      position: absolute;
+      height: 50%;
+      width: 100%;
+      bottom: 0;
+      left: 0;
+      background: linear-gradient(to bottom, transparent, #000);
+    }
+  }
+}
+
+.placeholder {
+  padding: 70px 4% 0;
+  box-sizing: border-box;
+  .placeholder-list {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    height: 200px;
+    margin-bottom: 50px;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: placeHolderShimmer;
+    animation-timing-function: linear;
+    background-color: #111;
+    background-image: linear-gradient(
+      to left,
+      #111 0%,
+      #222 20%,
+      #111 40%,
+      #111 100%
+    );
+    background-repeat: no-repeat;
+    background-size: 800px 200px;
+    position: relative;
+    .placeholder-item {
+      flex: 0 0 4px;
+      display: block;
+      width: 4px;
+      height: 200px;
+      margin-right: 145px;
+      font-size: 0;
+      background-color: #000;
+    }
+    @keyframes placeHolderShimmer {
+      0% {
+        background-position: -468px 0;
+      }
+
+      100% {
+        background-position: 468px 0;
+      }
+    }
+  }
+}
+
+header {
+  height: 68px;
+  padding: 0 4%;
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  transition: all 200ms ease-in-out;
+  display: flex;
+  align-items: center;
+  &.visible {
+    background-color: rgb(20, 20, 20);
+  }
+  .logo {
+    width: 120px;
+    filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.4));
+  }
 }
 
 .videoLoader {
@@ -18,7 +106,7 @@ body {
   height: 100vh;
   outline: none;
   border: 0;
-  z-index: 10;
+  z-index: 100;
   background: rgba(0, 0, 0, 0.9);
   -webkit-backdrop-filter: blur(3px);
 }
@@ -26,6 +114,7 @@ body {
 .drama-list-wrapper {
   width: 100%;
   overflow-x: hidden;
+  padding-top: 70px;
   &.flex {
     height: auto;
     padding: 0.5rem 4% 0.5em 4%;
@@ -57,6 +146,7 @@ body {
     height: 200px;
     margin-top: 20px;
     margin-bottom: 40px;
+    z-index: 10;
     &:hover {
       .flickity-button {
         opacity: 1;
@@ -174,14 +264,53 @@ body {
     }
   }
   .episode-wrapper {
-    //min-height: 400px;
     display: none;
-    .episode-list {
-      display: flex;
-      flex-flow: row wrap;
-      box-sizing: border-box;
-      padding: 0.5rem 4%;
+    .episode-container {
       background: #111;
+      position: relative;
+      margin-top: -40px;
+      margin-bottom: 40px;
+      padding: 40px 4% 30px;
+      box-sizing: border-box;
+      height: 460px;
+      .title {
+        color: #fff;
+        height: 60px;
+        margin: 0;
+      }
+    }
+    .episode-poster {
+      height: 100%;
+      width: 30%;
+      background-position: right center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      position: absolute;
+      top: 0;
+      right: 0;
+      &:before {
+        content: "";
+        position: absolute;
+        width: 35%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: linear-gradient(to right, #111, transparent);
+      }
+    }
+    .episode-list {
+      //flex-basis: calc(100% - 240px - 4%);
+      //width: calc(100% - 240px - 4%);
+      flex-basis: calc(70% - 30px);
+      width: calc(70% - 30px);
+      padding-right: 30px;
+      //display: flex;
+      //flex-flow: row wrap;
+      display: grid;
+      grid-template-columns: 25% 25% 25% 25%;
+      grid-gap: 10px;
+      max-height: calc(100% - 60px);
+      overflow: auto;
       .episode-item {
         flex-grow: 1;
         min-width: 50px;

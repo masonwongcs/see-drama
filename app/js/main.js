@@ -9,6 +9,17 @@ loadDramaSeries = async () => {
       let currentTitle = value.title;
       let res = await axios.get("/api/drama/?" + value.url + "&size=10");
 
+      if (index === 0) {
+        $("body").prepend(
+          $(
+            `<div class="bg-image" style="background-image: url(${res.data[0].image
+              .split("?")[1]
+              .replace("src=", "")
+              .replace("&w=200&h=300", "")})"></div>`
+          )
+        );
+      }
+
       if (res.status === 200) {
         console.log(res.data);
 
@@ -21,6 +32,9 @@ loadDramaSeries = async () => {
             <a
               href="/episode?${value.url}"
               data-url="/api/episode?${value.url}"
+              data-img="${value.image}"
+              data-title-en="${dramaTitleEN ? dramaTitleEN : ""}"
+              data-title-cn="${dramaTitleCN ? dramaTitleCN : ""}"
               style="background-image: url(${value.image})"
               class="drama-item carousel-cell"
             >
@@ -60,6 +74,9 @@ loadDramaSeries = async () => {
             wrapAround: true,
             pageDots: false
           });
+          $(".placeholder")
+            .fadeOut()
+            .remove();
 
           // carousel.on('dragStart.flickity', () => carousel.find('.slide').css('pointer-events', 'none'));
           // carousel.on('dragEnd.flickity', () => carousel.find('.slide').css('pointer-events', 'all'));
@@ -73,21 +90,21 @@ loadEpisodes = async url => {
   return res.data;
 };
 
-getEpisode = async () => {
-  const currDrama = $(this).data("url");
-  let episodes = await loadEpisodes(currDrama);
-  let episodeList = $(`<div class="episode-list"></div>`);
-  episodes.forEach(function(value, index) {
-    let episodeItem = $(
-      `<a href="/video?${value.url}" class="episode-item"></a>`
-    );
-    episodeItem.text(index + 1);
-    episodeList.append(episodeItem);
-  });
-  $(".episode-wrapper")
-    .append(episodeList)
-    .slideDown();
-};
+// getEpisode = async () => {
+//   const currDrama = $(this).data("url");
+//   let episodes = await loadEpisodes(currDrama);
+//   let episodeList = $(`<div class="episode-list"></div>`);
+//   episodes.forEach(function(value, index) {
+//     let episodeItem = $(
+//       `<a href="/video?${value.url}" class="episode-item"></a>`
+//     );
+//     episodeItem.text(index + 1);
+//     episodeList.append(episodeItem);
+//   });
+//   $(".episode-wrapper")
+//     .append(episodeList)
+//     .slideDown();
+// };
 
 $(document).ready(function() {
   if (location.pathname === "/") {
@@ -95,9 +112,22 @@ $(document).ready(function() {
 
     $(document).on("click", ".drama-item", async function(e) {
       e.preventDefault();
-      $(".episode-wrapper").slideUp().empty();
+      $(".episode-wrapper")
+        .slideUp()
+        .empty();
       const currDrama = $(this).data("url");
+      const currDramaBgStyle = $(this)
+        .data("img")
+        .split("?")[1]
+        .replace("src=", "")
+        .replace("&w=200&h=300", "");
+      const dramaTitleCN = $(this).data("title-cn");
+      const dramaTitleEN = $(this).data("title-en");
+      let episodeContainer = $(`<div class="episode-container"></div>`);
       let episodes = await loadEpisodes(currDrama);
+      let episodePoster = $(
+        `<div class="episode-poster" style="background-image: url(${currDramaBgStyle})"></div>`
+      );
       let episodeList = $(`<div class="episode-list"></div>`);
       episodes.forEach(function(value, index) {
         let episodeItem = $(
@@ -106,9 +136,20 @@ $(document).ready(function() {
           }" class="episode-item" data-video="/video?${value.url}"></a>`
         );
         // episodeItem.text(index + 1);
+
         episodeItem.text(value.title);
         episodeList.append(episodeItem);
       });
+      episodeContainer.append(
+        $(` <h3 class="title">
+                ${dramaTitleEN ? dramaTitleEN : ""}${
+          dramaTitleCN ? `<br />` : ""
+        }${dramaTitleCN ? dramaTitleCN : ""}
+              </h3>`)
+      );
+      episodeContainer.append(episodeList);
+      episodeContainer.append(episodePoster);
+
       $(this).addClass("active");
       $(".drama-item")
         .not($(this))
@@ -117,7 +158,7 @@ $(document).ready(function() {
         .closest(".drama-list")
         .addClass("active")
         .next(".episode-wrapper")
-        .append(episodeList)
+        .append(episodeContainer)
         .slideDown();
     });
     $(document).on("click", ".episode-item", function(e) {
@@ -134,6 +175,15 @@ $(document).ready(function() {
       $(".videoLoader")
         .removeAttr("src")
         .fadeOut();
+    }
+  });
+
+  $(window).on("scroll", function(e) {
+    let top = $("header").offset().top;
+    if (top > 30) {
+      $("header").addClass("visible");
+    } else {
+      $("header").removeClass("visible");
     }
   });
 });
