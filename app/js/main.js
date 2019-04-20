@@ -106,60 +106,92 @@ loadEpisodes = async url => {
 //     .slideDown();
 // };
 
-$(document).ready(function() {
-  if (location.pathname === "/") {
-    loadDramaSeries();
+let isFetching = false;
 
+$(document).ready(function() {
+  if (location.pathname === "/" || location.pathname === "/drama") {
+    if (location.pathname === "/") {
+      loadDramaSeries();
+    }
     $(document).on("click", ".drama-item", async function(e) {
       e.preventDefault();
-      $(".episode-wrapper")
-        .slideUp()
-        .empty();
-      const currDrama = $(this).data("url");
-      const currDramaBgStyle = $(this)
-        .data("img")
-        .split("?")[1]
-        .replace("src=", "")
-        .replace("&w=200&h=300", "");
-      const dramaTitleCN = $(this).data("title-cn");
-      const dramaTitleEN = $(this).data("title-en");
-      let episodeContainer = $(`<div class="episode-container"></div>`);
-      let episodes = await loadEpisodes(currDrama);
-      let episodePoster = $(
-        `<div class="episode-poster" style="background-image: url(${currDramaBgStyle})"></div>`
-      );
-      let episodeList = $(`<div class="episode-list"></div>`);
-      episodes.forEach(function(value, index) {
-        let episodeItem = $(
-          `<a href="/video?${
-            value.url
-          }" class="episode-item" data-video="/video?${value.url}"></a>`
+      if (!isFetching) {
+        $(this).addClass("active");
+        isFetching = true;
+        $(".episode-wrapper")
+          .slideUp()
+          .empty();
+        const currDrama = $(this).data("url");
+        const currDramaBgStyle = $(this)
+          .data("img")
+          .split("?")[1]
+          .replace("src=", "")
+          .replace("&w=200&h=300", "");
+        const dramaTitleCN = $(this).data("title-cn");
+        const dramaTitleEN = $(this).data("title-en");
+        let episodeContainer = $(`<div class="episode-container"></div>`);
+        let episodes = await loadEpisodes(currDrama);
+        let episodePoster = $(
+          `<div class="episode-poster" style="background-image: url(${currDramaBgStyle})"></div>`
         );
-        // episodeItem.text(index + 1);
+        let episodeList = $(`<div class="episode-list"></div>`);
+        episodes.forEach(function(value, index) {
+          let episodeItem = $(
+            `<a href="/video?${
+              value.url
+            }" class="episode-item" data-video="/video?${value.url}"></a>`
+          );
+          // episodeItem.text(index + 1);
 
-        episodeItem.text(value.title);
-        episodeList.append(episodeItem);
-      });
-      episodeContainer.append(
-        $(` <h3 class="title">
+          episodeItem.text(value.title);
+          episodeList.append(episodeItem);
+        });
+        episodeContainer.append(
+          $(` <h3 class="title">
                 ${dramaTitleEN ? dramaTitleEN : ""}${
-          dramaTitleCN ? `<br />` : ""
-        }${dramaTitleCN ? dramaTitleCN : ""}
+            dramaTitleCN ? `<br />` : ""
+          }${dramaTitleCN ? dramaTitleCN : ""}
               </h3>`)
-      );
-      episodeContainer.append(episodeList);
-      episodeContainer.append(episodePoster);
+        );
+        episodeContainer.append(episodeList);
+        episodeContainer.append(episodePoster);
+        episodeContainer.append($(`<a class="close" href="#!">×</a>`));
 
-      $(this).addClass("active");
-      $(".drama-item")
-        .not($(this))
-        .removeClass("active");
-      $(this)
-        .closest(".drama-list")
-        .addClass("active")
-        .next(".episode-wrapper")
-        .append(episodeContainer)
-        .slideDown();
+        $(".drama-item")
+          .not($(this))
+          .removeClass("active");
+        if (location.pathname === "/") {
+          $(this)
+            .closest(".drama-list")
+            .addClass("active")
+            .next(".episode-wrapper")
+            .append(episodeContainer)
+            .slideDown();
+        } else {
+          $(this)
+            .closest(".drama-list")
+            .addClass("active")
+            .next(".episode-wrapper")
+            .append(episodeContainer)
+            .fadeIn();
+        }
+
+        $(document).on("click", ".episode-wrapper .close", function(e) {
+          e.preventDefault();
+          if (location.pathname === "/") {
+            $(".episode-wrapper")
+              .slideUp()
+              .empty();
+          } else {
+            $(".episode-wrapper")
+              .fadeOut()
+              .empty();
+          }
+
+          $(".drama-item").removeClass("active");
+        });
+        isFetching = false;
+      }
     });
     $(document).on("click", ".episode-item", function(e) {
       e.preventDefault();

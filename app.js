@@ -113,9 +113,10 @@ getVideo = async (query, setHeader) => {
       let dramaContent = {
         title: value.title,
         image: value.content,
-        url: value.title.includes("Mirror")
-          ? btoa(enclosure.url) + "a"
-          : enclosure.url
+        url:
+          value.title.includes("Mirror")
+            ? btoa(enclosure.url) + "a"
+            : enclosure.url
       };
       episodeList.push(dramaContent);
     });
@@ -195,7 +196,11 @@ app.get("/video", async (req, res) => {
   const query = req._parsedUrl.query;
   await getVideo(atob(query.slice(0, -1)), true).then(response => {
     console.log(response[0].title);
-    if (response[0].title.includes("Mirror")) {
+    if (
+      response[0].title.includes("Mirror") ||
+      response[0].title.includes("Openload") ||
+      response[0].title.includes("Embed")
+    ) {
       res.render("video", { channel: true, content: response });
     } else {
       res.render("video", {

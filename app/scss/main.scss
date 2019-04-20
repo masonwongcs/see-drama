@@ -106,7 +106,7 @@ header {
   height: 100vh;
   outline: none;
   border: 0;
-  z-index: 100;
+  z-index: 200;
   background: rgba(0, 0, 0, 0.9);
   -webkit-backdrop-filter: blur(3px);
 }
@@ -117,7 +117,7 @@ header {
   padding-top: 70px;
   &.flex {
     height: auto;
-    padding: 0.5rem 4% 0.5em 4%;
+    padding: 70px 4% 0.5em 4%;
     box-sizing: border-box;
     .drama-list {
       height: auto;
@@ -125,6 +125,39 @@ header {
       flex-flow: row wrap;
       .drama-item {
         margin: 0 auto 20px;
+      }
+    }
+    .episode-wrapper {
+      position: fixed;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      align-items: center;
+      transform: translateY(-50%);
+      .close {
+        transform: translateY(-110%);
+      }
+      &:before {
+        content: "";
+        position: fixed;
+        top: 50%;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        outline: none;
+        border: 0;
+        transform: translateY(-50%);
+        z-index: -1;
+        background: rgba(0, 0, 0, 0.9);
+        -webkit-backdrop-filter: blur(3px);
+      }
+      .episode-container {
+        margin-top: 0;
+        margin-bottom: 0;
+        width: 100%;
       }
     }
   }
@@ -284,6 +317,21 @@ header {
         height: 60px;
         margin: 0;
       }
+    }
+    .close {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 4rem;
+      font-size: 4rem;
+      color: #fff;
+      height: 4rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      filter: drop-shadow(0 0 12px #000);
     }
     .episode-poster {
       height: 100%;
