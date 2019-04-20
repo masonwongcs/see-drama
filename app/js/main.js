@@ -7,7 +7,7 @@ loadDramaSeries = async () => {
     let dramaListWrapper = $(`<div class="drama-list-wrapper"></div>`);
     res.data.forEach(async (value, index) => {
       let currentTitle = value.title;
-      let res = await axios.get("/api/drama/?" + value.url + "&size=10");
+      let res = await axios.get("/api/drama/?" + value.url + "&size=20");
 
       if (index === 0) {
         $("body").prepend(
