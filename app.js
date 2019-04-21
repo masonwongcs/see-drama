@@ -9,6 +9,8 @@ const btoa = require("btoa");
 const atob = require("atob");
 const path = require("path");
 
+const db = require("./db");
+
 const app = express();
 const port = process.env.PORT || 3000;
 const dramaUrl = "http://allrss.se" + "/dramas";
@@ -17,57 +19,81 @@ const regex = /<img.*?src='(.*?)'/;
 app.set("view engine", "pug");
 app.use("/dist", express.static(path.join(path.resolve(__dirname), "dist")));
 
+setDramaList = async dramaList => {
+  await db.set("drama", dramaList);
+};
+
 getDramaList = async () => {
   let feed = await parser.parseURL(dramaUrl);
   let dramaList = [];
 
-  feed.items
-    .filter(
-      item =>
-        !(
-          item.title === "All Channel" ||
-          item.title.includes("Anime") ||
-          item.title.includes("US TV Series") ||
-          item.title.includes("Korean") ||
-          item.title.includes("Janpanese") ||
-          item.title.includes("Chinese") ||
-          item.title.includes("Taiwan") ||
-          item.title.includes("English Subtitles")
-        )
-    )
-    .map((value, index) => {
-      let enclosure = value.enclosure;
-      let image = regex.exec(value.content)[1];
-      let dramaContent = {
-        title: value.title,
-        image: image,
-        url: enclosure.url.split("?")[1]
-      };
-      dramaList.push(dramaContent);
-    });
+  let dramaDB = await db.get("drama");
 
+  if (dramaDB) {
+    dramaList = dramaDB;
+  } else {
+    feed.items
+      .filter(
+        item =>
+          !(
+            item.title === "All Channel" ||
+            item.title.includes("Anime") ||
+            item.title.includes("US TV Series") ||
+            item.title.includes("Korean") ||
+            item.title.includes("Janpanese") ||
+            item.title.includes("Chinese") ||
+            item.title.includes("Taiwan") ||
+            item.title.includes("English Subtitles")
+          )
+      )
+      .map((value, index) => {
+        let enclosure = value.enclosure;
+        let image = regex.exec(value.content)[1];
+        let dramaContent = {
+          title: value.title,
+          image: image,
+          url: enclosure.url.split("?")[1]
+        };
+        dramaList.push(dramaContent);
+      });
+    // If first time get drama list then save to db
+    await setDramaList(dramaList);
+  }
   return dramaList;
+};
+
+setContent = async (key, content) => {
+  await db.set([key], content);
+};
+
+updateContent = async (key, value) => {
+  await db.update(key, value);
 };
 
 getContent = async (query, size) => {
   let feed = await parser.parseURL(dramaUrl + query);
   let contentList = [];
-
-  feed.items.map((value, index) => {
-    if (size) {
-      if (index >= size) return;
-    }
-    let enclosure = value.enclosure;
-    let image = regex.exec(value.content)[1];
-    let dramaContent = {
-      title: value.title,
-      // image: image.replace("http://allrss.se/dramas/timthumb.php?src=", "").replace("&w=150&h=84", ""),
-      image: image.replace("&w=150&h=84", "&w=200&h=300"),
-      url: enclosure.url.split("?")[1]
-    };
-    contentList.push(dramaContent);
-  });
-
+  let dramaDB = await db.get(queryString.parse(query).channel, size);
+  if (dramaDB && dramaDB.length !== 0) {
+    contentList = dramaDB;
+  } else {
+    feed.items
+      .filter(item => !item.title.includes("Page"))
+      .map((value, index) => {
+        if (size) {
+          if (index >= size) return;
+        }
+        let enclosure = value.enclosure;
+        let image = regex.exec(value.content)[1];
+        let dramaContent = {
+          title: value.title,
+          // image: image.replace("http://allrss.se/dramas/timthumb.php?src=", "").replace("&w=150&h=84", ""),
+          image: image.replace("&w=150&h=84", "&w=200&h=300"),
+          url: enclosure.url.split("?")[1]
+        };
+        contentList.push(dramaContent);
+      });
+  }
   return contentList;
 };
 
@@ -113,10 +139,9 @@ getVideo = async (query, setHeader) => {
       let dramaContent = {
         title: value.title,
         image: value.content,
-        url:
-          value.title.includes("Mirror")
-            ? btoa(enclosure.url) + "a"
-            : enclosure.url
+        url: value.title.includes("Mirror")
+          ? btoa(enclosure.url) + "a"
+          : enclosure.url
       };
       episodeList.push(dramaContent);
     });
@@ -182,6 +207,62 @@ app.get("/api/drama", async (req, res) => {
   res.send(contentList);
 });
 
+// recently
+// hk-drama
+// hk-variety
+// movies
+
+updateDramaAPI = async (type, page) => {
+  let feed = await parser.parseURL(
+    `${dramaUrl}?channel=${type}&nocache=1${page !== 1 ? `&page=${page}` : ""}`
+  );
+  let contentList = [];
+  feed.items
+    .filter(item => !item.title.includes("Page"))
+    .map((value, index) => {
+      // if (size) {
+      //   if (index >= size) return;
+      // }
+      let enclosure = value.enclosure;
+      let image = regex.exec(value.content)[1];
+      let dramaContent = {
+        title: value.title,
+        // image: image.replace("http://allrss.se/dramas/timthumb.php?src=", "").replace("&w=150&h=84", ""),
+        image: image.replace("&w=150&h=84", "&w=200&h=300"),
+        url: enclosure.url.split("?")[1]
+      };
+      contentList.push(dramaContent);
+    });
+  return contentList;
+};
+
+updateDrama = async (req, res) => {
+  // await
+  // await db.init();
+  const dramaType = ["recently", "hk-drama", "hk-variety", "movies"];
+  await dramaType.forEach(async (value, index) => {
+    const channel = value;
+    let dramaList = [];
+    const pageSize = 50;
+
+    for (let i = 1; i <= pageSize; i++) {
+      let contentList = await updateDramaAPI(channel, i);
+      console.log(contentList.length);
+      if (contentList.length === 0) {
+        break;
+      }
+      Array.prototype.push.apply(dramaList, contentList);
+    }
+
+    await setContent(channel, dramaList);
+  });
+
+  res.send("Update complete");
+};
+app.get("/update/drama", async (req, res) => {
+  await updateDrama();
+});
+
 app.get("/episode", async (req, res) => {
   const contentList = await getEpisode(req._parsedUrl.search);
   res.render("episode", { content: contentList });
@@ -209,21 +290,12 @@ app.get("/video", async (req, res) => {
       });
     }
   });
-
-  // await getVideo(atob(query.slice(0, -1)), true).then(response => {
-  //   console.log(response);
-  //   response.forEach(async (value, index) => {
-  //     if (value.title.includes("Mirror Allupload (Cantonese)")) {
-  //       res.render("video", { channel: true, content: JSON.stringify(response) });
-  //       // await getVideoLanguage(value.url, true).then(response => {
-  //       //   console.log(value.url)
-  //       //   res.render("video", { content: JSON.stringify(response) });
-  //       // });
-  //       // return;
-  //     } else {
-  //       res.render("video", { channel: false, content: JSON.stringify(response) });
-  //     }
-  //   });
-  // });
 });
+
+const timeoutDuration = 15 * 60 * 1000;
+console.log(`Start check drama every ${timeoutDuration / 1000} seconds.`);
+setInterval(() => {
+  updateDrama();
+}, timeoutDuration);
+
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));

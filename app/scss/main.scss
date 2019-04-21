@@ -10,9 +10,9 @@ body {
     top: 0;
     z-index: -1;
     width: 100vw;
-    height: 50%;
+    height: 80%;
     filter: blur(15px);
-    opacity: 0.5;
+    opacity: 0.2;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -51,7 +51,7 @@ body {
       #111 100%
     );
     background-repeat: no-repeat;
-    background-size: 800px 200px;
+    background-size: 1920px 200px;
     position: relative;
     .placeholder-item {
       flex: 0 0 4px;
@@ -64,11 +64,11 @@ body {
     }
     @keyframes placeHolderShimmer {
       0% {
-        background-position: -468px 0;
+        background-position: -1129px 0;
       }
 
       100% {
-        background-position: 468px 0;
+        background-position: 1129px 0;
       }
     }
   }
