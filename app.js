@@ -259,6 +259,11 @@ updateDrama = async (req, res) => {
 
   res.send("Update complete");
 };
+
+findContent = async (key, content) => {
+  let result = await db.find(key, content);
+  return result;
+};
 app.get("/update/drama", async (req, res) => {
   await updateDrama();
 });
@@ -288,6 +293,36 @@ app.get("/video", async (req, res) => {
         channel: false,
         content: JSON.stringify(response)
       });
+    }
+  });
+});
+
+app.get("/search", async (req, res) => {
+  console.log(req.query.q)
+  const dramaType = ["recently", "hk-drama", "hk-variety", "movies"];
+  const query = req.query.q.toLowerCase();
+  let result = [];
+  await dramaType.forEach(async (value, index) => {
+    const contentList = await findContent(value, query);
+    Array.prototype.push.apply(result, contentList);
+    // console.log(result)
+    if (index === dramaType.length - 1) {
+      // res.send(result);
+      res.render("drama", { title: "search", content: result });
+    }
+  });
+});
+
+app.get("/api/search", async (req, res) => {
+  const dramaType = ["recently", "hk-drama", "hk-variety", "movies"];
+  const query = req.query.search;
+  let result = [];
+  await dramaType.forEach(async (value, index) => {
+    const contentList = await findContent(value, query);
+    Array.prototype.push.apply(result, contentList);
+    // console.log(result)
+    if (index === dramaType.length - 1) {
+      res.send(result);
     }
   });
 });

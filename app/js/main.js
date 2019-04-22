@@ -74,9 +74,10 @@ loadDramaSeries = async () => {
             wrapAround: true,
             pageDots: false
           });
-          $(".placeholder")
-            .fadeOut()
-            .remove();
+          $(".placeholder").addClass("ready");
+          setTimeout(function() {
+            $(".placeholder").remove();
+          }, 1000);
 
           // carousel.on('dragStart.flickity', () => carousel.find('.slide').css('pointer-events', 'none'));
           // carousel.on('dragEnd.flickity', () => carousel.find('.slide').css('pointer-events', 'all'));
@@ -109,7 +110,11 @@ loadEpisodes = async url => {
 let isFetching = false;
 
 $(document).ready(function() {
-  if (location.pathname === "/" || location.pathname === "/drama") {
+  if (
+    location.pathname === "/" ||
+    location.pathname === "/drama" ||
+    location.pathname === "/search"
+  ) {
     if (location.pathname === "/") {
       loadDramaSeries();
     }
@@ -155,7 +160,7 @@ $(document).ready(function() {
         );
         episodeContainer.append(episodeList);
         episodeContainer.append(episodePoster);
-        episodeContainer.append($(`<a class="close" href="#!">×</a>`));
+        episodeContainer.append($(`<a class="close" href="#!"><i class="fas fa-times"></i></a>`));
 
         $(".drama-item")
           .not($(this))

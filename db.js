@@ -50,6 +50,13 @@ module.exports.update = async function(key, value) {
   //     .write()
 };
 
+module.exports.find = async function(key, query) {
+  // For performance, use .value() instead of .write() if you're only reading from db
+  let result = db.get(key).value();
+
+  return result.filter(item => item.title.toLowerCase().includes(query));
+};
+
 module.exports.get = async function(key, size) {
   // Set a user using Lodash shorthand syntax
   // db.get("drama").value();
