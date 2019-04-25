@@ -167,8 +167,11 @@ html
                         }, 200);
                         console.log("forward currentTime:", player.currentTime);
 
-                        player.play();
                     });
+
+                    setTimeout(function() {
+                        player.play();
+                    }, 1000)
 
                     player.on("play", function() {
                         setTimeout(function(){
@@ -184,7 +187,7 @@ html
                                     Lockr.set(uuid, episodeObj);
                                 }
                             }, 1000)
-                        }, 1000)
+                        }, 2000)
                     })
 
                     // player.on('ready', function(event) {
