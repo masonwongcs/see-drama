@@ -47,6 +47,10 @@ html
                 opacity: 0;
             }
 
+            .close-wrapper .close> span {
+                font-size: 1rem;
+            }
+
             .close {
                 position: absolute;
                 top: 25%;
@@ -86,11 +90,22 @@ html
             }
     body
         .close-wrapper
-            a.close(href="#!") <i class="fas fa-chevron-left"></i>&nbsp;Back
+            a.close(href="#!") <i class="fas fa-chevron-left"></i>&nbsp;
+                span= title
         script.
             $(".close").click(function (e) {
                 e.preventDefault();
-                window.top.postMessage('close', '*');
+                const uuid = "!{uuid}"
+                let percentage = 100;
+                if(Lockr.get(uuid)){
+                    percentage = Lockr.get(uuid).percentage
+                }
+                var episodeItemObj = {
+                    action: 'close',
+                    uuid: uuid,
+                    percentage: percentage
+                }
+                window.top.postMessage(JSON.stringify(episodeItemObj), '*');
             })
         if channel
             .channel-list-wrapper
@@ -98,21 +113,29 @@ html
                     a.channel-item(href="/video?" + items.url )= items.title
 
         else
-            video#player(poster='/path/to/poster.jpg', playsinline='false', controls='', autoplay)
+            video#player(poster='/path/to/poster.jpg', playsinline='false', controls='')
                 source(src="", type='video/mp4')
                 //source(src='/path/to/video.webm', type='video/webm')
                 // Captions are optional
                 track(kind='captions', label='English captions', src='/path/to/captions.vtt', srclang='en', default='')
             script.
                 const video = !{content}
+                const uuid = "!{uuid}"
                 console.log(video)
                 if(!!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)) {
                     $('#player source').attr('src', video[1].url)
                 } else {
                     const player = new Plyr('#player');
+                    var playedTime = 0;
+                    if( Lockr.get(uuid) ) {
+                        playedTime = Lockr.get(uuid).currentTime;
+                        // player.currentTime = playedTime;
+                    }
+
                     player.source = {
                         type: 'video',
                         title: 'Example title',
+                        currentTime: 200,
                         sources: [
                             {
                                 src: video[0].url,
@@ -126,14 +149,85 @@ html
                             }
                         ],
                     }
-                    player.on('controlshidden', function (event) {
-                        // const instance = event.detail.plyr;
-                        $('.close-wrapper').addClass('hide');
+
+                    // player.on('loadedmetadata', function () {
+                    //     player.currentTime(100);
+                    // });
+                    var getTime = false;
+
+                    player.on("ready", function() {
+                        console.log("currentTime:", player.currentTime);
+                        var forwardInterval = setInterval(function () {
+                        if (player.currentTime !== playedTime) {
+                                player.currentTime = playedTime;
+                            } else {
+                                clearInterval(forwardInterval);
+                                getTime = true;
+                            }
+                        }, 200);
+                        console.log("forward currentTime:", player.currentTime);
+
+                        player.play();
+                    });
+
+                    player.on("play", function() {
+                        setTimeout(function(){
+                            setInterval(function () {
+                                if (getTime) {
+                                    var currentTime = player.currentTime
+                                    var duration = player.duration
+                                    // console.log(currentTime, duration)
+                                    var episodeObj = {
+                                        currentTime: currentTime,
+                                        percentage: (currentTime / duration) * 100
+                                    }
+                                    Lockr.set(uuid, episodeObj);
+                                }
+                            }, 1000)
+                        }, 1000)
                     })
-                    player.on('controlsshown', function (event) {
-                        // const instance = event.detail.plyr;
-                        $('.close-wrapper').removeClass('hide');
-                    })
+
+                    // player.on('ready', function(event) {
+                    //     const instance = event.detail.plyr;
+                    //     console.log(instance)
+                    //     instance.currentTime = 200
+                    // })
+
+
+                    // player.on('controlshidden', function (event) {
+                    //     // const instance = event.detail.plyr;
+                    //     $('.close-wrapper').addClass('hide');
+                    // })
+                    // player.on('controlsshown', function (event) {
+                    //     // const instance = event.detail.plyr;
+                    //     $('.close-wrapper').removeClass('hide');
+                    // })
+
+                    var timer;
+                    var hidding = false;
+                    $(function () {
+                        $('.plyr').mousemove(function () {
+                            if (hidding) {
+                                hidding = false;
+                                return;
+                            }
+                            if (timer) {
+                                clearTimeout(timer);
+                                timer = 0;
+                            }
+                            $('.plyr__video-wrapper').css({
+                                cursor: 'pointer'
+                            });
+                            $('.close-wrapper').removeClass('hide');
+                            timer = setTimeout(function () {
+                                hidding = true;
+                                $('.plyr__video-wrapper').css({
+                                    cursor: 'none'
+                                });
+                                $('.close-wrapper').addClass('hide');
+                            }, 2000)
+                        });
+                    });
 
                 }
 

@@ -122,10 +122,29 @@ $(document).ready(function() {
       e.preventDefault();
       if (!isFetching) {
         $(this).addClass("active");
+        $(".drama-item")
+          .not($(this))
+          .removeClass("active");
         isFetching = true;
-        $(".episode-wrapper")
-          .slideUp()
-          .empty();
+        $(".drama-list").removeClass("active");
+        setTimeout(function() {
+          $(".episode-wrapper").empty();
+        }, 400);
+
+        //Slide down the episode container
+        // if (location.pathname === "/") {
+        //   $(this)
+        //     .closest(".drama-list")
+        //     .addClass("active")
+        //     .next(".episode-wrapper")
+        //     .slideDown();
+        // } else {
+        //   $(this)
+        //     .closest(".drama-list")
+        //     .addClass("active")
+        //     .next(".episode-wrapper")
+        //     .fadeIn();
+        // }
         const currDrama = $(this).data("url");
         const currDramaBgStyle = $(this)
           .data("img")
@@ -141,14 +160,30 @@ $(document).ready(function() {
         );
         let episodeList = $(`<div class="episode-list"></div>`);
         episodes.forEach(function(value, index) {
+          let uuid = value.url;
+          let percentage = 0;
+          if (Lockr.get(uuid)) {
+            percentage = Lockr.get(uuid).percentage;
+          }
+
           let episodeItem = $(
-            `<a href="/video?${
-              value.url
-            }" class="episode-item" data-video="/video?${value.url}"></a>`
+            `
+              <a
+                href="/video?${value.url}"
+                class="episode-item"
+                data-video="/video?${value.url}"
+                data-uuid="${uuid}"
+                ></a>
+            `
           );
           // episodeItem.text(index + 1);
 
           episodeItem.text(value.title);
+          episodeItem.append(
+            $(
+              `<div class="data-percentage" style="width: ${percentage}%"></div>`
+            )
+          );
           episodeList.append(episodeItem);
         });
         episodeContainer.append(
@@ -160,7 +195,9 @@ $(document).ready(function() {
         );
         episodeContainer.append(episodeList);
         episodeContainer.append(episodePoster);
-        episodeContainer.append($(`<a class="close" href="#!"><i class="fas fa-times"></i></a>`));
+        episodeContainer.append(
+          $(`<a class="close" href="#!"><i class="fas fa-times"></i></a>`)
+        );
 
         $(".drama-item")
           .not($(this))
@@ -170,28 +207,33 @@ $(document).ready(function() {
             .closest(".drama-list")
             .addClass("active")
             .next(".episode-wrapper")
-            .append(episodeContainer)
-            .slideDown();
+            .append(episodeContainer);
+          // .slideDown();
         } else {
           $(this)
             .closest(".drama-list")
             .addClass("active")
             .next(".episode-wrapper")
-            .append(episodeContainer)
-            .fadeIn();
+            .append(episodeContainer);
+          $("body").addClass("fixed");
+          // .fadeIn();
         }
 
         $(document).on("click", ".episode-wrapper .close", function(e) {
           e.preventDefault();
-          if (location.pathname === "/") {
-            $(".episode-wrapper")
-              .slideUp()
-              .empty();
-          } else {
-            $(".episode-wrapper")
-              .fadeOut()
-              .empty();
-          }
+          $(".drama-list").removeClass("active");
+          setTimeout(function() {
+            if (location.pathname === "/") {
+              $(".episode-wrapper")
+                // .slideUp()
+                .empty();
+            } else {
+              $(".episode-wrapper")
+                // .fadeOut()
+                .empty();
+              $("body").removeClass("fixed");
+            }
+          }, 400);
 
           $(".drama-item").removeClass("active");
         });
@@ -208,19 +250,32 @@ $(document).ready(function() {
 
   window.addEventListener("message", function(e) {
     console.log(e);
-    if (e.data === "close") {
+    var jsonData = JSON.parse(e.data);
+    var uuid = jsonData.uuid;
+    var percentage = jsonData.percentage;
+    if (jsonData.action === "close") {
       $(".videoLoader")
         .removeAttr("src")
         .fadeOut();
+    }
+    if (jsonData.percentage) {
+      $('[data-uuid="' + uuid + '"] .data-percentage').css(
+        "width",
+        percentage + "%"
+      );
     }
   });
 
   $(window).on("scroll", function(e) {
     let top = $("header").offset().top;
-    if (top > 30) {
-      $("header").addClass("visible");
+    if(location.pathname !== "/") {
+      $(".episode-wrapper").css("top", $("header").offset().top + "px");
     } else {
-      $("header").removeClass("visible");
+      if (top > 30) {
+        $("header").addClass("visible");
+      } else {
+        $("header").removeClass("visible");
+      }
     }
   });
 });

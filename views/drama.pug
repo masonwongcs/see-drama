@@ -2,8 +2,18 @@ html
     head
         include components/meta
         script(type="text/javascript" src="dist/lib/lazyload.js")
+        style.
+            body.fixed {
+                overflow: hidden;
+            }
+
+            body header.visible {
+                background-color: rgba(20, 20, 20, 0.7);
+                backdrop-filter: blur(10px);
+            }
     body
         include components/header
+        +header('drama')
         .placeholder
             - var m = 0
             - var n = 0

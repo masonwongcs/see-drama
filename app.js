@@ -280,17 +280,28 @@ app.get("/api/episode", async (req, res) => {
 
 app.get("/video", async (req, res) => {
   const query = req._parsedUrl.query;
+  const uuid = query;
+  const queryStingDecoded = queryString.parse(atob(query.slice(0, -1)));
+
+  let title = "";
+  if(queryStingDecoded.title){
+    title = queryStingDecoded.title
+  } else{
+    title = Object.values(queryStingDecoded)[1]
+  }
+
   await getVideo(atob(query.slice(0, -1)), true).then(response => {
-    console.log(response[0].title);
     if (
       response[0].title.includes("Mirror") ||
       response[0].title.includes("Openload") ||
       response[0].title.includes("Embed")
     ) {
-      res.render("video", { channel: true, content: response });
+      res.render("video", { channel: true, title: title, uuid: uuid, content: response });
     } else {
       res.render("video", {
         channel: false,
+        title: title,
+        uuid: uuid,
         content: JSON.stringify(response)
       });
     }
