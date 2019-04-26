@@ -12,3 +12,15 @@ script(src="dist/lib/jquery-3.4.0.min.js")
 script(src="dist/lib/flickity.pkgd.min.js")
 script(src="dist/lib/lockr.js")
 script(src="dist/js/bundle.js")
+script(src='https://www.gstatic.com/firebasejs/5.10.1/firebase.js')
+script.
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyAfIBGUzXVdaj2F1CQEcZQUlJMDMHsILhw",
+        authDomain: "see-drama.firebaseapp.com",
+        databaseURL: "https://see-drama.firebaseio.com",
+        projectId: "see-drama",
+        storageBucket: "see-drama.appspot.com",
+        messagingSenderId: "723210357213"
+    };
+    firebase.initializeApp(config);
