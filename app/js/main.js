@@ -1,30 +1,35 @@
 const axios = require("axios");
 
 loadDramaSeries = async () => {
-  let res = await axios.get("/api/list");
+  let resAll = await axios.get("/api/list/all");
 
-  if (res.status === 200) {
-    let dramaListWrapper = $(`<div class="drama-list-wrapper"></div>`);
-    res.data.forEach(async (value, index) => {
-      let currentTitle = value.title;
-      let res = await axios.get("/api/drama/?" + value.url + "&size=20");
+  if (resAll.status === 200) {
+    if (resAll.data.length !== 0) {
+      let dramaListWrapper = $(`<div class="drama-list-wrapper"></div>`);
+      let totalIndex = resAll.data.length;
+      resAll.data.forEach(async (value, index) => {
+        console.log(value);
+        let currentTitle = value.title;
+        // let res = await axios.get("/api/drama/?" + value.url + "&size=20");
+        let dramaTypeList = Object.values(value)[1];
+        let firstImage = Object.values(value)[1][0].image;
 
-      if (index === 0) {
-        $("body").prepend(
-          $(
-            `<div class="bg-image" style="background-image: url(${res.data[0].image
-              .split("?")[1]
-              .replace("src=", "")
-              .replace("&w=200&h=300", "")})"></div>`
-          )
-        );
-      }
+        if (index === 0) {
+          $("body").prepend(
+            $(
+              `<div class="bg-image" style="background-image: url(${firstImage
+                .split("?")[1]
+                .replace("src=", "")
+                .replace("&w=200&h=300", "")})"></div>`
+            )
+          );
+        }
 
-      if (res.status === 200) {
-        console.log(res.data);
+        // if (res.status === 200) {
+        //   console.log(dramaTypeList);
 
         let dramaList = $(`<div class="drama-list"></div>`);
-        res.data.forEach(function(value, index) {
+        dramaTypeList.forEach(function(value, index) {
           let dramaItemTitle = value.title.trim().split("-");
           let dramaTitleEN = dramaItemTitle[0];
           let dramaTitleCN = dramaItemTitle[1];
@@ -61,12 +66,18 @@ loadDramaSeries = async () => {
         );
         dramaListWrapper.append(dramaList);
         dramaListWrapper.append($(`<div class="episode-wrapper"></div>`));
-      }
-      // });
-      $("body")
-        .append(dramaListWrapper)
-        .ready(function() {
-          console.log("ready");
+        // }
+        // });
+        $("body")
+          .append(dramaListWrapper)
+          .ready(function() {
+            console.log("ready");
+            // carousel.on('dragStart.flickity', () => carousel.find('.slide').css('pointer-events', 'none'));
+            // carousel.on('dragEnd.flickity', () => carousel.find('.slide').css('pointer-events', 'all'));
+          });
+
+        console.log(index, totalIndex);
+        if (index === totalIndex - 1) {
           let carousel = $(".drama-list").flickity({
             // options
             contain: true,
@@ -77,12 +88,98 @@ loadDramaSeries = async () => {
           $(".placeholder").addClass("ready");
           setTimeout(function() {
             $(".placeholder").remove();
-          }, 1000);
+          }, 900);
+        }
+      });
+    } else {
+      let res = await axios.get("/api/list");
 
-          // carousel.on('dragStart.flickity', () => carousel.find('.slide').css('pointer-events', 'none'));
-          // carousel.on('dragEnd.flickity', () => carousel.find('.slide').css('pointer-events', 'all'));
+      if (res.status === 200) {
+        let dramaListWrapper = $(`<div class="drama-list-wrapper"></div>`);
+        let totalIndex = res.data.length;
+        res.data.forEach(async (value, index) => {
+          let currentTitle = value.title;
+          let res = await axios.get("/api/drama/?" + value.url + "&size=20");
+
+          if (index === 0) {
+            $("body").prepend(
+              $(
+                `<div class="bg-image" style="background-image: url(${res.data[0].image
+                  .split("?")[1]
+                  .replace("src=", "")
+                  .replace("&w=200&h=300", "")})"></div>`
+              )
+            );
+          }
+
+          if (res.status === 200) {
+            console.log(res.data);
+
+            let dramaList = $(`<div class="drama-list"></div>`);
+            res.data.forEach(function(value, index) {
+              let dramaItemTitle = value.title.trim().split("-");
+              let dramaTitleEN = dramaItemTitle[0];
+              let dramaTitleCN = dramaItemTitle[1];
+              let dramaItem = `
+            <a
+              href="/episode?${value.url}"
+              data-url="/api/episode?${value.url}"
+              data-img="${value.image}"
+              data-title-en="${dramaTitleEN ? dramaTitleEN : ""}"
+              data-title-cn="${dramaTitleCN ? dramaTitleCN : ""}"
+              style="background-image: url(${value.image})"
+              class="drama-item carousel-cell"
+            >
+              <h3 class="title">
+                ${dramaTitleEN ? dramaTitleEN : ""}${
+                dramaTitleCN ? `<br />` : ""
+              }${dramaTitleCN ? dramaTitleCN : ""}
+              </h3>
+            </a>
+          `;
+              dramaList.append(dramaItem);
+            });
+            dramaListWrapper.append(
+              $(
+                `
+              <h1 class="drama-title">
+                ${currentTitle}<a
+                  class="see-more"
+                  href="${"/drama?" + value.url}"
+                >See more</a>
+              </h1>
+            `
+              )
+            );
+            dramaListWrapper.append(dramaList);
+            dramaListWrapper.append($(`<div class="episode-wrapper"></div>`));
+          }
+          // });
+          $("body")
+            .append(dramaListWrapper)
+            .ready(function() {
+              console.log("ready");
+              // carousel.on('dragStart.flickity', () => carousel.find('.slide').css('pointer-events', 'none'));
+              // carousel.on('dragEnd.flickity', () => carousel.find('.slide').css('pointer-events', 'all'));
+            });
+
+          console.log(index, totalIndex);
+          // if (index === totalIndex - 1) {
+          let carousel = $(".drama-list").flickity({
+            // options
+            contain: true,
+            // freeScroll: true,
+            wrapAround: true,
+            pageDots: false
+          });
+          $(".placeholder").addClass("ready");
+          setTimeout(function() {
+            $(".placeholder").remove();
+          }, 900);
+          // }
         });
-    });
+      }
+    }
   }
 };
 
@@ -268,7 +365,7 @@ $(document).ready(function() {
 
   $(window).on("scroll", function(e) {
     let top = $("header").offset().top;
-    if(location.pathname !== "/") {
+    if (location.pathname !== "/") {
       $(".episode-wrapper").css("top", $("header").offset().top + "px");
     } else {
       if (top > 30) {

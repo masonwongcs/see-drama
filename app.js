@@ -62,6 +62,40 @@ getDramaList = async () => {
   return dramaList;
 };
 
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
+}
+
+getAllDramaList = async size => {
+  const listSize = size;
+  let dramaList = [];
+
+  let dramaDB = await db.get("drama");
+
+  await asyncForEach(dramaDB, async value => {
+    const channel = queryString.parse(value.url).channel;
+    let dramaTypeList = await db.get(channel);
+    let dramaType = [];
+    let count = 0;
+    await asyncForEach(dramaTypeList, async value => {
+      count++;
+      if (listSize < count) {
+        return;
+      }
+      dramaType.push(value);
+    });
+    let dramaListObj = {
+      title: value.title,
+      [channel]: dramaType,
+      url: value.url
+    };
+    await dramaList.push(dramaListObj);
+  });
+  return dramaList;
+};
+
 setContent = async (key, content) => {
   await db.set([key], content);
 };
@@ -193,6 +227,12 @@ app.get("/api/list", async (req, res) => {
   res.send(dramaList);
 });
 
+app.get("/api/list/all", async (req, res) => {
+  const size = 20;
+  const dramaList = await getAllDramaList(size);
+  res.send(dramaList);
+});
+
 app.get("/drama", async (req, res) => {
   const title = req.query.channel;
   console.log(title);
@@ -284,10 +324,10 @@ app.get("/video", async (req, res) => {
   const queryStingDecoded = queryString.parse(atob(query.slice(0, -1)));
 
   let title = "";
-  if(queryStingDecoded.title){
-    title = queryStingDecoded.title
-  } else{
-    title = Object.values(queryStingDecoded)[1]
+  if (queryStingDecoded.title) {
+    title = queryStingDecoded.title;
+  } else {
+    title = Object.values(queryStingDecoded)[1];
   }
 
   await getVideo(atob(query.slice(0, -1)), true).then(response => {
@@ -296,7 +336,12 @@ app.get("/video", async (req, res) => {
       response[0].title.includes("Openload") ||
       response[0].title.includes("Embed")
     ) {
-      res.render("video", { channel: true, title: title, uuid: uuid, content: response });
+      res.render("video", {
+        channel: true,
+        title: title,
+        uuid: uuid,
+        content: response
+      });
     } else {
       res.render("video", {
         channel: false,
@@ -309,7 +354,7 @@ app.get("/video", async (req, res) => {
 });
 
 app.get("/search", async (req, res) => {
-  console.log(req.query.q)
+  console.log(req.query.q);
   const dramaType = ["recently", "hk-drama", "hk-variety", "movies"];
   const query = req.query.q.toLowerCase();
   let result = [];

@@ -173,7 +173,7 @@ header {
 
 .drama-list-wrapper {
   width: 100%;
-  overflow-x: hidden;
+  //overflow-x: hidden;
   padding-top: 70px;
   animation: fadeIn 600ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
   @keyframes fadeIn {
@@ -244,6 +244,8 @@ header {
       width: 100%;
       z-index: 100;
       align-items: center;
+      margin-top: 0;
+      margin-bottom: 0;
       //transform: translateY(-50%);
       .close {
         //transform: translateY(-110%);
@@ -297,6 +299,7 @@ header {
     margin-top: 20px;
     margin-bottom: 40px;
     z-index: 10;
+    overflow: hidden;
     &:hover {
       .flickity-button {
         opacity: 1;
@@ -427,13 +430,13 @@ header {
     //display: none;
     height: 0;
     opacity: 0;
-    transition: height 400ms cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: -40px;
+    margin-bottom: 60px;
+    transition: height 0.54s cubic-bezier(0.5, 0, 0.1, 1) 0s,
+      opacity 0.44s cubic-bezier(0.5, 0, 0.1, 1) 0.1s;
     .episode-container {
       background: #111;
       position: relative;
-      margin-top: -40px;
-      margin-bottom: 40px;
       padding: 40px 4% 30px;
       box-sizing: border-box;
       height: 460px;
