@@ -5,6 +5,7 @@ body {
   background-color: #000;
   margin: 0;
   font-family: "Kanit", sans-serif;
+  overflow-x: hidden;
   .bg-image {
     position: fixed;
     top: 0;
@@ -155,6 +156,27 @@ header {
   }
 }
 
+footer {
+  //position: absolute;
+  height: 400px;
+  //width: 100%;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  color: #808080;
+  max-width: 980px;
+  margin: auto;
+  .footer-wrapper {
+    display: flex;
+    .footer-item {
+      flex-grow: 1;
+    }
+  }
+  .footer-text {
+    font-size: 10px;
+  }
+}
+
 .videoLoader {
   display: none;
   position: fixed;
@@ -176,6 +198,7 @@ header {
   //overflow-x: hidden;
   padding-top: 70px;
   animation: fadeIn 600ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  position: relative;
   @keyframes fadeIn {
     from {
       transform: scale(0.5);
@@ -184,6 +207,46 @@ header {
     to {
       transform: scale(1);
       opacity: 1;
+    }
+  }
+  .bg-image {
+    position: absolute;
+    top: 0;
+    z-index: -1;
+    width: 100vw;
+    height: 80%;
+    filter: blur(15px);
+    opacity: 0.2;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    &:before {
+      content: "";
+      position: absolute;
+      height: 50%;
+      width: 100%;
+      bottom: 0;
+      left: 0;
+      background: linear-gradient(to bottom, transparent, #000);
+    }
+  }
+  .drama-list-item {
+    position: relative;
+    transition: transform 0.54s cubic-bezier(0.5, 0, 0.1, 1) 0s;
+    &.active {
+      & ~ .drama-list-item {
+        transform: translate3d(0, 460px, 0);
+      }
+    }
+    &:hover {
+      .see-more {
+        transform: translateX(0);
+        opacity: 1;
+        .right-icon {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
     }
   }
   &.flex {
@@ -285,15 +348,29 @@ header {
   .drama-title {
     color: #fff;
     margin: 0 4% 0.5em 4%;
-    font-size: 1.5rem;
+    font-size: 1.4vw;
     font-weight: normal;
     display: flex;
     align-items: center;
     .see-more {
-      margin-left: auto;
-      font-size: 0.8rem;
+      //margin-left: auto;
+      font-size: 0.9vw;
       text-decoration: none;
       color: #fff;
+      padding-left: 1rem;
+      display: flex;
+      align-items: center;
+      text-transform: uppercase;
+      transition: max-width 1s, opacity 1s, transform 750ms,
+        -webkit-transform 750ms, -moz-transform 750ms, -o-transform 750ms;
+      transform: translateX(-100%);
+      opacity: 0;
+      .right-icon {
+        font-size: 0.6vw;
+        transform: translateX(-1000%);
+        opacity: 0;
+        transition: transform 750ms, opacity 500ms;
+      }
     }
   }
   .drama-list {
@@ -301,7 +378,7 @@ header {
     margin-top: 20px;
     margin-bottom: 40px;
     z-index: 10;
-    overflow: hidden;
+    //overflow: hidden;
     &:hover {
       .flickity-button {
         opacity: 1;
@@ -340,26 +417,28 @@ header {
     }
     &.active {
       & + .episode-wrapper {
-        height: 460px;
+        //height: 460px;
         opacity: 1;
+        visibility: visible;
       }
       .drama-item {
         &.active {
           box-shadow: 0 0 0 4px #fff;
-          //&:before {
-          //  content: "";
-          //  width: 0;
-          //  height: 0;
-          //  position: absolute;
-          //  top: 100%;
-          //  left: 50%;
-          //  margin-left: -13px;
-          //  border-style: solid;
-          //  border-width: 7px 13px 0 13px;
-          //  border-color: rgba(0, 0, 0, 0.15) transparent transparent
-          //    transparent;
-          //  margin-top: 5px;
-          //}
+          pointer-events: none;
+          &:before {
+            //content: "";
+            //width: 0;
+            //height: 0;
+            //position: absolute;
+            //top: 100%;
+            //left: 50%;
+            //margin-left: -13px;
+            //border-style: solid;
+            //border-width: 7px 13px 0 13px;
+            //border-color: rgba(0, 0, 0, 0.15) transparent transparent
+            //  transparent;
+            //margin-top: 5px;
+          }
           &:after {
             content: "";
             width: 0;
@@ -389,24 +468,24 @@ header {
       margin-right: 4px;
       transition: transform 200ms ease-in-out;
       &:before {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        height: 50%;
-        background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.9));
-        opacity: 0;
-        transition: opacity 300ms ease-in-out;
+        //content: "";
+        //position: absolute;
+        //bottom: 0;
+        //left: 0;
+        //right: 0;
+        //width: 100%;
+        //height: 50%;
+        //background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.9));
+        //opacity: 0;
+        //transition: opacity 300ms ease-in-out;
       }
       @media screen and (min-width: 480px) {
         &:hover {
           transform: scale(1.1);
           z-index: 10;
-          &:before {
-            opacity: 1;
-          }
+          //&:before {
+          //  opacity: 1;
+          //}
           .title {
             opacity: 1;
           }
@@ -418,22 +497,46 @@ header {
         color: #fff;
         font-size: 1rem;
         font-weight: normal;
-        bottom: 4px;
-        left: 4px;
-        right: 4px;
+        bottom: 0;
+        left: 0;
+        right: 0;
         opacity: 0;
+        padding: 0 4px 16px 4px;
         transition: opacity 300ms ease-in-out;
         text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
         z-index: 10;
+        margin: 0;
+        &:before {
+          content: "";
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          width: 100%;
+          height: 100px;
+          background: linear-gradient(
+            to bottom,
+            transparent,
+            rgba(0, 0, 0, 0.9)
+          );
+          //opacity: 0;
+          transition: opacity 0.44s cubic-bezier(0.5, 0, 0.1, 1) 0.1s;
+          z-index: -1;
+        }
       }
     }
   }
   .episode-wrapper {
     //display: none;
-    height: 0;
+    position: absolute;
+    top: 236px;
+    left: 0;
+    right: 0;
+    visibility: hidden;
+    height: 460px;
     opacity: 0;
-    margin-top: -40px;
-    margin-bottom: 60px;
+    //margin-top: -40px;
+    //margin-bottom: 60px;
     transition: height 0.54s cubic-bezier(0.5, 0, 0.1, 1) 0s,
       opacity 0.44s cubic-bezier(0.5, 0, 0.1, 1) 0.1s,
       visibility 0.44s cubic-bezier(0.5, 0, 0.1, 1) 0.1s;

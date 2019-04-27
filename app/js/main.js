@@ -1,11 +1,14 @@
 const axios = require("axios");
 
+let carousel;
+
 loadDramaSeries = async () => {
   let resAll = await axios.get("/api/list/all");
 
   if (resAll.status === 200) {
     if (resAll.data.length !== 0) {
-      let dramaListWrapper = $(`<div class="drama-list-wrapper"></div>`);
+      // let dramaListWrapper = $(`<div class="drama-list-wrapper"></div>`);
+      let dramaListWrapper = $('.drama-list-wrapper');
       let totalIndex = resAll.data.length;
       resAll.data.forEach(async (value, index) => {
         console.log(value);
@@ -15,7 +18,7 @@ loadDramaSeries = async () => {
         let firstImage = Object.values(value)[1][0].image;
 
         if (index === 0) {
-          $("body").prepend(
+          dramaListWrapper.prepend(
             $(
               `<div class="bg-image" style="background-image: url(${firstImage
                 .split("?")[1]
@@ -29,6 +32,7 @@ loadDramaSeries = async () => {
         //   console.log(dramaTypeList);
 
         let dramaList = $(`<div class="drama-list"></div>`);
+        let dramaListItem = $(`<div class="drama-list-item"></div>`);
         dramaTypeList.forEach(function(value, index) {
           let dramaItemTitle = value.title.trim().split("-");
           let dramaTitleEN = dramaItemTitle[0];
@@ -52,29 +56,32 @@ loadDramaSeries = async () => {
           `;
           dramaList.append(dramaItem);
         });
-        dramaListWrapper.append(
+        dramaListItem.append(
           $(
             `
               <h1 class="drama-title">
                 ${currentTitle}<a
                   class="see-more"
                   href="${"/drama?" + value.url}"
-                >See more</a>
+                >See more&nbsp;<i class="fas fa-chevron-right right-icon"></i></a>
               </h1>
             `
           )
         );
-        dramaListWrapper.append(dramaList);
-        dramaListWrapper.append($(`<div class="episode-wrapper"></div>`));
+
+        dramaListItem.append(dramaList);
+        dramaListItem.append($(`<div class="episode-wrapper"></div>`));
+        dramaListWrapper.append(dramaListItem);
         // }
         // });
-        $("body")
-          .append(dramaListWrapper)
-          .ready(function() {
-            console.log("ready");
-            // carousel.on('dragStart.flickity', () => carousel.find('.slide').css('pointer-events', 'none'));
-            // carousel.on('dragEnd.flickity', () => carousel.find('.slide').css('pointer-events', 'all'));
-          });
+
+        // $("body")
+        //   .append(dramaListWrapper)
+        //   .ready(function() {
+        //     console.log("ready");
+        //     // carousel.on('dragStart.flickity', () => carousel.find('.slide').css('pointer-events', 'none'));
+        //     // carousel.on('dragEnd.flickity', () => carousel.find('.slide').css('pointer-events', 'all'));
+        //   });
 
         console.log(index, totalIndex);
         if (index === totalIndex - 1) {
@@ -165,7 +172,7 @@ loadDramaSeries = async () => {
 
           console.log(index, totalIndex);
           // if (index === totalIndex - 1) {
-          let carousel = $(".drama-list").flickity({
+          carousel = $(".drama-list").flickity({
             // options
             contain: true,
             // freeScroll: true,
@@ -215,6 +222,7 @@ $(document).ready(function() {
     if (location.pathname === "/") {
       loadDramaSeries();
     }
+
     $(document).on("click", ".drama-item", async function(e) {
       e.preventDefault();
       if (!isFetching) {
@@ -224,6 +232,7 @@ $(document).ready(function() {
           .removeClass("active");
         isFetching = true;
         $(".drama-list").removeClass("active");
+        $(".drama-list-item").removeClass("active");
         setTimeout(function() {
           $(".episode-wrapper").empty();
         }, 400);
@@ -301,6 +310,9 @@ $(document).ready(function() {
           .removeClass("active");
         if (location.pathname === "/") {
           $(this)
+            .closest(".drama-list-item")
+            .addClass("active");
+          $(this)
             .closest(".drama-list")
             .addClass("active")
             .next(".episode-wrapper")
@@ -319,6 +331,7 @@ $(document).ready(function() {
         $(document).on("click", ".episode-wrapper .close", function(e) {
           e.preventDefault();
           $(".drama-list").removeClass("active");
+          $(".drama-list-item").removeClass("active");
           setTimeout(function() {
             if (location.pathname === "/") {
               $(".episode-wrapper")
@@ -337,6 +350,7 @@ $(document).ready(function() {
         isFetching = false;
       }
     });
+
     $(document).on("click", ".episode-item", function(e) {
       e.preventDefault();
       $(".videoLoader")
