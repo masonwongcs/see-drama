@@ -1,6 +1,10 @@
 const axios = require("axios");
+const firebase = require("./firebase");
+const videoPlayer = require("./video");
 
 let carousel;
+
+videoPlayer.init();
 
 loadDramaSeries = async () => {
   let resAll = await axios.get("/api/list/all");
@@ -8,7 +12,7 @@ loadDramaSeries = async () => {
   if (resAll.status === 200) {
     if (resAll.data.length !== 0) {
       // let dramaListWrapper = $(`<div class="drama-list-wrapper"></div>`);
-      let dramaListWrapper = $('.drama-list-wrapper');
+      let dramaListWrapper = $(".drama-list-wrapper");
       let totalIndex = resAll.data.length;
       resAll.data.forEach(async (value, index) => {
         console.log(value);
@@ -223,6 +227,24 @@ $(document).ready(function() {
       loadDramaSeries();
     }
 
+    if ($(".video-player").length !== 0) {
+      // videoPlayer.init();
+    }
+
+    console.log(firebase.checkLogin($(".login-btn")));
+
+    $(".login-btn").click(function(e) {
+      e.preventDefault();
+      var that = $(this);
+
+      firebase.loginWithPopup(that);
+    });
+
+    $(".login-wrapper .logout").click(function(e) {
+      e.preventDefault();
+      firebase.logout($(".login-btn"));
+    });
+
     $(document).on("click", ".drama-item", async function(e) {
       e.preventDefault();
       if (!isFetching) {
@@ -268,12 +290,14 @@ $(document).ready(function() {
         episodes.forEach(function(value, index) {
           let uuid = value.url;
           let percentage = 0;
-          if (Lockr.get(uuid)) {
-            percentage = Lockr.get(uuid).percentage;
-          }
 
-          let episodeItem = $(
-            `
+          firebase.getVideoTime(uuid, function(time) {
+            if (time) {
+              percentage = time.percentage;
+            }
+
+            let episodeItem = $(
+              `
               <a
                 href="/video?${value.url}"
                 class="episode-item"
@@ -281,16 +305,17 @@ $(document).ready(function() {
                 data-uuid="${uuid}"
                 ></a>
             `
-          );
-          // episodeItem.text(index + 1);
+            );
+            // episodeItem.text(index + 1);
 
-          episodeItem.text(value.title);
-          episodeItem.append(
-            $(
-              `<div class="data-percentage" style="width: ${percentage}%"></div>`
-            )
-          );
-          episodeList.append(episodeItem);
+            episodeItem.text(value.title);
+            episodeItem.append(
+              $(
+                `<div class="data-percentage" style="width: ${percentage}%"></div>`
+              )
+            );
+            episodeList.append(episodeItem);
+          });
         });
         episodeContainer.append(
           $(` <h3 class="title">

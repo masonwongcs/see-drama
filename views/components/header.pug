@@ -20,3 +20,7 @@ mixin header(extraClass)
         form(action="/search" method="GET")
             input(type="search" name="q" placeholder="Search keyword")
             button(type="submit") <i class="fas fa-search"></i>
+        .login-wrapper
+            a.login-btn(href="#!") <i class="far fa-user"></i>
+            .dropdown
+                a.dropdown-item.logout(href="#!") <i class="fas fa-sign-out-alt"></i><span class="text">Logout</span>

@@ -322,7 +322,6 @@ app.get("/video", async (req, res) => {
   const query = req._parsedUrl.query;
   const uuid = query;
   const queryStingDecoded = queryString.parse(atob(query.slice(0, -1)));
-
   let title = "";
   if (queryStingDecoded.title) {
     title = queryStingDecoded.title;

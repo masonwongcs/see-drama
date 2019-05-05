@@ -85,35 +85,32 @@ html
                 text-decoration: none;
             }
 
+            .channel-item.hide {
+                display: none;
+            }
+
             .channel-item:not(:last-child) {
                 margin-bottom: 8px;
             }
-    body
+    body.video-player
         .close-wrapper
             a.close(href="#!") <i class="fas fa-chevron-left"></i>&nbsp;
                 span= title
         script.
             $(".close").click(function (e) {
-                e.preventDefault();
                 const uuid = "!{uuid}"
-                let percentage = 100;
-                if(Lockr.get(uuid)){
-                    percentage = Lockr.get(uuid).percentage
-                }
-                var episodeItemObj = {
-                    action: 'close',
-                    uuid: uuid,
-                    percentage: percentage
-                }
-                window.top.postMessage(JSON.stringify(episodeItemObj), '*');
+                e.preventDefault();
+                window.videoPlayerClose(uuid)
             })
         if channel
             .channel-list-wrapper
                 for items in content
-                    a.channel-item(href="/video?" + items.url )= items.title
+                    a.channel-item(class= items.title.indexOf("Cantonese") !== -1 || items.title.indexOf("English subtitle") !== -1 ? "hide": "", href="/video?" + items.url )= items.title
+            script.
+                 location.href = $('.channel-list-wrapper a.channel-item:first-child').attr("href");
 
         else
-            video#player(poster='/path/to/poster.jpg', playsinline='false', controls='')
+            video#player(playsinline='false', controls='')
                 source(src="", type='video/mp4')
                 //source(src='/path/to/video.webm', type='video/webm')
                 // Captions are optional
@@ -121,117 +118,6 @@ html
             script.
                 const video = !{content}
                 const uuid = "!{uuid}"
-                console.log(video)
-                if(!!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)) {
-                    $('#player source').attr('src', video[1].url)
-                } else {
-                    const player = new Plyr('#player');
-                    var playedTime = 0;
-                    if( Lockr.get(uuid) ) {
-                        playedTime = Lockr.get(uuid).currentTime;
-                        // player.currentTime = playedTime;
-                    }
-
-                    player.source = {
-                        type: 'video',
-                        title: 'Example title',
-                        currentTime: 200,
-                        sources: [
-                            {
-                                src: video[0].url,
-                                type: 'video/mp4',
-                                size: 360,
-                            },
-                            {
-                                src: video[1].url,
-                                type: 'video/mp4',
-                                size: 720,
-                            }
-                        ],
-                    }
-
-                    // player.on('loadedmetadata', function () {
-                    //     player.currentTime(100);
-                    // });
-                    var getTime = false;
-
-                    player.on("ready", function() {
-                        console.log("currentTime:", player.currentTime);
-                        var forwardInterval = setInterval(function () {
-                        if (player.currentTime !== playedTime) {
-                                player.currentTime = playedTime;
-                            } else {
-                                clearInterval(forwardInterval);
-                                getTime = true;
-                            }
-                        }, 200);
-                        console.log("forward currentTime:", player.currentTime);
-
-                    });
-
-                    setTimeout(function() {
-                        player.play();
-                    }, 1000)
-
-                    player.on("play", function() {
-                        setTimeout(function(){
-                            setInterval(function () {
-                                if (getTime) {
-                                    var currentTime = player.currentTime
-                                    var duration = player.duration
-                                    // console.log(currentTime, duration)
-                                    var episodeObj = {
-                                        currentTime: currentTime,
-                                        percentage: (currentTime / duration) * 100
-                                    }
-                                    Lockr.set(uuid, episodeObj);
-                                }
-                            }, 1000)
-                        }, 2000)
-                    })
-
-                    // player.on('ready', function(event) {
-                    //     const instance = event.detail.plyr;
-                    //     console.log(instance)
-                    //     instance.currentTime = 200
-                    // })
-
-
-                    // player.on('controlshidden', function (event) {
-                    //     // const instance = event.detail.plyr;
-                    //     $('.close-wrapper').addClass('hide');
-                    // })
-                    // player.on('controlsshown', function (event) {
-                    //     // const instance = event.detail.plyr;
-                    //     $('.close-wrapper').removeClass('hide');
-                    // })
-
-                    var timer;
-                    var hidding = false;
-                    $(function () {
-                        $('.plyr').mousemove(function () {
-                            if (hidding) {
-                                hidding = false;
-                                return;
-                            }
-                            if (timer) {
-                                clearTimeout(timer);
-                                timer = 0;
-                            }
-                            $('.plyr__video-wrapper').css({
-                                cursor: 'pointer'
-                            });
-                            $('.close-wrapper').removeClass('hide');
-                            timer = setTimeout(function () {
-                                hidding = true;
-                                $('.plyr__video-wrapper').css({
-                                    cursor: 'none'
-                                });
-                                $('.close-wrapper').addClass('hide');
-                            }, 2000)
-                        });
-                    });
-
-                }
-
+                window.videoPlayer(video, uuid)
+                // console.log(video)
 
