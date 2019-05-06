@@ -21,16 +21,17 @@ loadDramaSeries = async () => {
         let dramaTypeList = Object.values(value)[1];
         let firstImage = Object.values(value)[1][0].image;
 
-        if (index === 0) {
-          dramaListWrapper.prepend(
-            $(
-              `<div class="bg-image" style="background-image: url(${firstImage
-                .split("?")[1]
-                .replace("src=", "")
-                .replace("&w=200&h=300", "")})"></div>`
-            )
-          );
-        }
+        // Add an image as background
+        // if (index === 0) {
+        //   dramaListWrapper.prepend(
+        //     $(
+        //       `<div class="bg-image" style="background-image: url(${firstImage
+        //         .split("?")[1]
+        //         .replace("src=", "")
+        //         .replace("&w=200&h=300", "")})"></div>`
+        //     )
+        //   );
+        // }
 
         // if (res.status === 200) {
         //   console.log(dramaTypeList);
@@ -112,16 +113,17 @@ loadDramaSeries = async () => {
           let currentTitle = value.title;
           let res = await axios.get("/api/drama/?" + value.url + "&size=20");
 
-          if (index === 0) {
-            $("body").prepend(
-              $(
-                `<div class="bg-image" style="background-image: url(${res.data[0].image
-                  .split("?")[1]
-                  .replace("src=", "")
-                  .replace("&w=200&h=300", "")})"></div>`
-              )
-            );
-          }
+          // Add first image as background
+          // if (index === 0) {
+          //   $("body").prepend(
+          //     $(
+          //       `<div class="bg-image" style="background-image: url(${res.data[0].image
+          //         .split("?")[1]
+          //         .replace("src=", "")
+          //         .replace("&w=200&h=300", "")})"></div>`
+          //     )
+          //   );
+          // }
 
           if (res.status === 200) {
             console.log(res.data);

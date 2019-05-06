@@ -8,6 +8,7 @@ const request = require("request");
 const btoa = require("btoa");
 const atob = require("atob");
 const path = require("path");
+var compression = require('compression')
 
 const db = require("./db");
 
@@ -18,6 +19,9 @@ const regex = /<img.*?src='(.*?)'/;
 
 app.set("view engine", "pug");
 app.use("/dist", express.static(path.join(path.resolve(__dirname), "dist")));
+
+// compress all responses
+app.use(compression())
 
 setDramaList = async dramaList => {
   await db.set("drama", dramaList);
