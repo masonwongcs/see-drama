@@ -11,97 +11,138 @@ loadDramaSeries = async () => {
 
   if (resAll.status === 200) {
     if (resAll.data.length !== 0) {
-      // let dramaListWrapper = $(`<div class="drama-list-wrapper"></div>`);
-      let dramaListWrapper = $(".drama-list-wrapper");
-      let totalIndex = resAll.data.length;
-      resAll.data.forEach(async (value, index) => {
-        console.log(value);
-        let currentTitle = value.title;
-        // let res = await axios.get("/api/drama/?" + value.url + "&size=20");
-        let dramaTypeList = Object.values(value)[1];
-        let firstImage = Object.values(value)[1][0].image;
+      await firebase.getFavourite(async function(data) {
+        let responseData = resAll.data;
+        let favourite;
+        if (data) {
+          favourite = await axios.post("/api/favourite", {
+            data: data
+          });
 
-        // Add an image as background
-        // if (index === 0) {
-        //   dramaListWrapper.prepend(
-        //     $(
-        //       `<div class="bg-image" style="background-image: url(${firstImage
-        //         .split("?")[1]
-        //         .replace("src=", "")
-        //         .replace("&w=200&h=300", "")})"></div>`
-        //     )
-        //   );
-        // }
+          console.log(favourite);
 
-        // if (res.status === 200) {
-        //   console.log(dramaTypeList);
+          let favouriteObject = {
+            title: "Favourites",
+            favourites: favourite.data,
+            url: ""
+          };
 
-        let dramaList = $(`<div class="drama-list"></div>`);
-        let dramaListItem = $(`<div class="drama-list-item"></div>`);
-        dramaTypeList.forEach(function(value, index) {
-          let dramaItemTitle = value.title.trim().split("-");
-          let dramaTitleEN = dramaItemTitle[0];
-          let dramaTitleCN = dramaItemTitle[1];
-          let dramaItem = `
+          console.log(favourite);
+          responseData.unshift(favouriteObject);
+        }
+
+        // let favouriteList = await axios.get('/api/favourite/get', {
+        //   data: ''
+        // })
+
+        // let dramaListWrapper = $(`<div class="drama-list-wrapper"></div>`);
+        let dramaListWrapper = $(".drama-list-wrapper");
+        let totalIndex = resAll.data.length;
+        let favouriteList = favourite && favourite.data;
+        responseData.forEach(async (value, index) => {
+          console.log(value);
+          let currentTitle = value.title;
+          // let res = await axios.get("/api/drama/?" + value.url + "&size=20");
+          let dramaTypeList = Object.values(value)[1];
+          // let firstImage = Object.values(value)[1][0].image;
+
+          // Add an image as background
+          // if (index === 0) {
+          //   dramaListWrapper.prepend(
+          //     $(
+          //       `<div class="bg-image" style="background-image: url(${firstImage
+          //         .split("?")[1]
+          //         .replace("src=", "")
+          //         .replace("&w=200&h=300", "")})"></div>`
+          //     )
+          //   );
+          // }
+
+          // if (res.status === 200) {
+          //   console.log(dramaTypeList);
+
+          let dramaList = $(`<div class="drama-list"></div>`);
+          let dramaListItem = $(`<div class="drama-list-item"></div>`);
+          dramaTypeList.forEach(function(value, index) {
+            let dramaItemTitle = value.title.trim().split("-");
+            let dramaTitleEN = dramaItemTitle[0];
+            let dramaTitleCN = dramaItemTitle[1];
+
+            let isFavourite =
+              favouriteList &&
+              favouriteList.find(item => {
+                return item.url === value.url;
+              });
+
+            let dramaItem = `
             <a
               href="/episode?${value.url}"
               data-url="/api/episode?${value.url}"
               data-img="${value.image}"
               data-title-en="${dramaTitleEN ? dramaTitleEN : ""}"
               data-title-cn="${dramaTitleCN ? dramaTitleCN : ""}"
+              data-favourite="${isFavourite ? "true" : "false"}"
               style="background-image: url(${value.image})"
               class="drama-item carousel-cell"
             >
               <h3 class="title">
                 ${dramaTitleEN ? dramaTitleEN : ""}${
-            dramaTitleCN ? `<br />` : ""
-          }${dramaTitleCN ? dramaTitleCN : ""}
+              dramaTitleCN ? `<br />` : ""
+            }${dramaTitleCN ? dramaTitleCN : ""}
               </h3>
             </a>
           `;
-          dramaList.append(dramaItem);
-        });
-        dramaListItem.append(
-          $(
-            `
+            dramaList.append(dramaItem);
+          });
+          dramaListItem.append(
+            $(
+              `
               <h1 class="drama-title">
-                ${currentTitle}<a
+                ${currentTitle}
+                ${
+                  currentTitle !== "Favourites"
+                    ? `<a
                   class="see-more"
                   href="${"/drama?" + value.url}"
-                >See more&nbsp;<i class="fas fa-chevron-right right-icon"></i></a>
+                >See more&nbsp;<i class="fas fa-chevron-right right-icon"></i></a>`
+                    : ``
+                }
+                
               </h1>
             `
-          )
-        );
+            )
+          );
 
-        dramaListItem.append(dramaList);
-        dramaListItem.append($(`<div class="episode-wrapper"></div>`));
-        dramaListWrapper.append(dramaListItem);
-        // }
-        // });
+          dramaListItem.append(dramaList);
+          dramaListItem.append($(`<div class="episode-wrapper"></div>`));
+          dramaListWrapper.append(dramaListItem);
+          // }
+          // });
 
-        // $("body")
-        //   .append(dramaListWrapper)
-        //   .ready(function() {
-        //     console.log("ready");
-        //     // carousel.on('dragStart.flickity', () => carousel.find('.slide').css('pointer-events', 'none'));
-        //     // carousel.on('dragEnd.flickity', () => carousel.find('.slide').css('pointer-events', 'all'));
-        //   });
+          // $("body")
+          //   .append(dramaListWrapper)
+          //   .ready(function() {
+          //     console.log("ready");
+          //     // carousel.on('dragStart.flickity', () => carousel.find('.slide').css('pointer-events', 'none'));
+          //     // carousel.on('dragEnd.flickity', () => carousel.find('.slide').css('pointer-events', 'all'));
+          //   });
 
-        console.log(index, totalIndex);
-        if (index === totalIndex - 1) {
-          let carousel = $(".drama-list").flickity({
-            // options
-            contain: true,
-            // freeScroll: true,
-            wrapAround: true,
-            pageDots: false
-          });
-          $(".placeholder").addClass("ready");
-          setTimeout(function() {
-            $(".placeholder").remove();
-          }, 900);
-        }
+          console.log(index, totalIndex);
+          if (index === totalIndex - 1) {
+            let carousel = $(".drama-list").flickity({
+              // options
+              contain: true,
+              // freeScroll: true,
+              wrapAround: true,
+              pageDots: false,
+              cellAlign: "left"
+            });
+            $(".placeholder").addClass("ready");
+            setTimeout(function() {
+              $(".placeholder").remove();
+            }, 900);
+          }
+        });
       });
     } else {
       let res = await axios.get("/api/list");
@@ -289,6 +330,7 @@ $(document).ready(function() {
           `<div class="episode-poster" style="background-image: url(${currDramaBgStyle})"></div>`
         );
         let episodeList = $(`<div class="episode-list"></div>`);
+        let totalPercentage = 0;
         episodes.forEach(function(value, index) {
           let uuid = value.url;
           let percentage = 0;
@@ -316,6 +358,9 @@ $(document).ready(function() {
                 `<div class="data-percentage" style="width: ${percentage}%"></div>`
               )
             );
+
+            // To keep track progress for each drama
+            totalPercentage += percentage;
             episodeList.append(episodeItem);
           });
         });
@@ -328,6 +373,16 @@ $(document).ready(function() {
         );
         episodeContainer.append(episodeList);
         episodeContainer.append(episodePoster);
+        episodeContainer.append(
+          $(
+            `<a class="add-to-favourite" href="#!" data-uuid="${currDrama.replace(
+              "/api/episode?",
+              ""
+            )}"><i class="fa-heart ${
+              $(this).data("favourite") ? "fas" : "far"
+            }"></i></a>`
+          )
+        );
         episodeContainer.append(
           $(`<a class="close" href="#!"><i class="fas fa-times"></i></a>`)
         );
@@ -354,28 +409,51 @@ $(document).ready(function() {
           $("body").addClass("fixed");
           // .fadeIn();
         }
-
-        $(document).on("click", ".episode-wrapper .close", function(e) {
-          e.preventDefault();
-          $(".drama-list").removeClass("active");
-          $(".drama-list-item").removeClass("active");
-          setTimeout(function() {
-            if (location.pathname === "/") {
-              $(".episode-wrapper")
-                // .slideUp()
-                .empty();
-            } else {
-              $(".episode-wrapper")
-                // .fadeOut()
-                .empty();
-              $("body").removeClass("fixed");
-            }
-          }, 400);
-
-          $(".drama-item").removeClass("active");
-        });
         isFetching = false;
       }
+    });
+
+    $(document).on("click", ".episode-wrapper .add-to-favourite", function(e) {
+      e.preventDefault();
+
+      console.log("clicked");
+      if (
+        $(this)
+          .find("i")
+          .hasClass("fas")
+      ) {
+        $(this)
+          .find("i")
+          .removeClass("fas")
+          .addClass("far");
+        firebase.removeFavourite($(this).data("uuid"));
+      } else {
+        $(this)
+          .find("i")
+          .addClass("fas")
+          .removeClass("far");
+        firebase.setFavourite($(this).data("uuid"));
+      }
+    });
+
+    $(document).on("click", ".episode-wrapper .close", function(e) {
+      e.preventDefault();
+      $(".drama-list").removeClass("active");
+      $(".drama-list-item").removeClass("active");
+      setTimeout(function() {
+        if (location.pathname === "/") {
+          $(".episode-wrapper")
+            // .slideUp()
+            .empty();
+        } else {
+          $(".episode-wrapper")
+            // .fadeOut()
+            .empty();
+          $("body").removeClass("fixed");
+        }
+      }, 400);
+
+      $(".drama-item").removeClass("active");
     });
 
     $(document).on("click", ".episode-item", function(e) {

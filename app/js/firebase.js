@@ -117,10 +117,65 @@ const getVideoTime = (uuid, callback) => {
     }
   });
 };
+
+const setFavourite = uuid => {
+  // Get a reference to the database service
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      // User is signed in.
+      var userId = user.uid;
+      var database = firebase.database();
+
+      database.ref("users/" + userId + "/favourite").update({
+        [uuid]: {
+          date: new Date()
+        }
+      });
+    }
+  });
+};
+
+const getFavourite = callback => {
+  // Get a reference to the database service
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      // User is signed in.
+      var userId = user.uid;
+      var database = firebase.database();
+
+      var users = database.ref("users/" + userId + "/favourite");
+      users.once("value", function(snapshot) {
+        // console.log(snapshot.val());
+        if (callback) {
+          callback(snapshot.val());
+        }
+      });
+    }
+  });
+};
+
+const removeFavourite = uuid => {
+  // Get a reference to the database service
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      // User is signed in.
+      var userId = user.uid;
+      var database = firebase.database();
+
+      var favouriteItem = database.ref(
+        "users/" + userId + "/favourite/" + uuid
+      );
+      favouriteItem.remove();
+    }
+  });
+};
 module.exports = {
   loginWithPopup: loginWithPopup,
   checkLogin: checkLogin,
   logout: logout,
   setVideoData: setVideoData,
-  getVideoTime: getVideoTime
+  getVideoTime: getVideoTime,
+  setFavourite: setFavourite,
+  getFavourite: getFavourite,
+  removeFavourite: removeFavourite
 };

@@ -8,7 +8,7 @@ const request = require("request");
 const btoa = require("btoa");
 const atob = require("atob");
 const path = require("path");
-var compression = require('compression')
+var compression = require("compression");
 
 const db = require("./db");
 
@@ -21,7 +21,7 @@ app.set("view engine", "pug");
 app.use("/dist", express.static(path.join(path.resolve(__dirname), "dist")));
 
 // compress all responses
-app.use(compression())
+app.use(compression());
 
 setDramaList = async dramaList => {
   await db.set("drama", dramaList);
@@ -308,6 +308,12 @@ findContent = async (key, content) => {
   let result = await db.find(key, content);
   return result;
 };
+
+getFavourite = async (key, content) => {
+  let result = await db.getFavourite(key, content);
+  return result;
+};
+
 app.get("/update/drama", async (req, res) => {
   await updateDrama();
 });
@@ -384,6 +390,41 @@ app.get("/api/search", async (req, res) => {
       res.send(result);
     }
   });
+});
+
+const bodyParser = require("body-parser");
+app.use(bodyParser.json());
+
+app.post("/api/favourite", async (req, res) => {
+  const dramaType = ["recently", "hk-drama", "hk-variety", "movies"];
+  const query = req.body.data;
+  let result = [];
+
+  await asyncForEach(Object.entries(query), async (value, index) => {
+    let favouriteUrl = value[0];
+
+    await asyncForEach(dramaType, async (value, index) => {
+      const contentList = await getFavourite(value, favouriteUrl);
+      Array.prototype.push.apply(result, contentList);
+    });
+  });
+  let unique = [...new Set(result)];
+
+  function getUnique(arr, comp) {
+    const unique = arr
+      .map(e => e[comp])
+
+      // store the keys of the unique objects
+      .map((e, i, final) => final.indexOf(e) === i && i)
+
+      // eliminate the dead keys & store unique objects
+      .filter(e => arr[e])
+      .map(e => arr[e]);
+
+    return unique;
+  }
+
+  res.send(getUnique(result, "url"));
 });
 
 const timeoutDuration = 15 * 60 * 1000;

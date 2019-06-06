@@ -663,6 +663,24 @@ footer {
         }
       }
     }
+    .add-to-favourite {
+      position: absolute;
+      top: 40px;
+      right: calc(30% + 20px);
+      width: 2rem;
+      font-size: 1rem;
+      color: #fff;
+      height: 2rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      filter: drop-shadow(0 0 12px #000);
+      .fas {
+        color: red;
+      }
+    }
     .close {
       position: absolute;
       top: 0;
