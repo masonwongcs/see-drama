@@ -11,7 +11,7 @@ loadDramaSeries = async () => {
 
   if (resAll.status === 200) {
     if (resAll.data.length !== 0) {
-      await firebase.getFavourite(async function(data) {
+      firebase.getFavourite(async function(data) {
         let responseData = resAll.data;
         let favourite;
         if (data) {
@@ -40,7 +40,6 @@ loadDramaSeries = async () => {
         let totalIndex = resAll.data.length;
         let favouriteList = favourite && favourite.data;
         responseData.forEach(async (value, index) => {
-          console.log(value);
           let currentTitle = value.title;
           // let res = await axios.get("/api/drama/?" + value.url + "&size=20");
           let dramaTypeList = Object.values(value)[1];

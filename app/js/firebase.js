@@ -138,6 +138,7 @@ const setFavourite = uuid => {
 const getFavourite = callback => {
   // Get a reference to the database service
   firebase.auth().onAuthStateChanged(function(user) {
+    console.log(user);
     if (user) {
       // User is signed in.
       var userId = user.uid;
@@ -150,6 +151,8 @@ const getFavourite = callback => {
           callback(snapshot.val());
         }
       });
+    } else {
+      callback("");
     }
   });
 };
