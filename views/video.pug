@@ -107,9 +107,10 @@ html
                 for items in content
                     a.channel-item(class= items.title.indexOf("Cantonese") !== -1 || items.title.indexOf("English subtitle") !== -1 ? "hide": "", href="/video?" + items.url )= items.title
             script.
-                 location.href = $('.channel-list-wrapper a.channel-item:first-child').attr("href");
+                if(!($('.channel-list-wrapper a.channel-item:first-child').text().toLowerCase().indexOf("part") !== -1)){
+                    location.href = $('.channel-list-wrapper a.channel-item:first-child').attr("href");
+                }
 
-        else
             video#player(playsinline='false', controls='')
                 source(src="", type='video/mp4')
                 //source(src='/path/to/video.webm', type='video/webm')
