@@ -108,8 +108,9 @@ html
                     a.channel-item(class= items.title.indexOf("Cantonese") !== -1 || items.title.indexOf("English subtitle") !== -1 ? "hide": "", href="/video?" + items.url )= items.title
             script.
                 if(!($('.channel-list-wrapper a.channel-item:first-child').text().toLowerCase().indexOf("part") !== -1)){
-                    $('.channel-list-wrapper a.channel-item').removeClass("hide");
                     location.href = $('.channel-list-wrapper a.channel-item:first-child').attr("href");
+                } else {
+                    $('.channel-list-wrapper a.channel-item').removeClass("hide");
                 }
         else
             video#player(playsinline='false', controls='')
