@@ -23,7 +23,7 @@
     "express": "^4.16.4",
     "gulp-browserify": "^0.5.1",
     "lowdb": "^1.0.0",
-    "pug": "^2.0.3",
+    "pug": "^3.0.1",
     "query-string": "^6.4.2",
     "rss-parser": "^3.7.0",
     "rss-to-json": "^1.0.4",
